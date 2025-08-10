@@ -1,0 +1,16 @@
+body {
+    background: url("../img/bg.png") left top no-repeat,
+                url("../img/bg.png") right top no-repeat;
+    background-size: auto 100%;
+    background-color: white;
+    margin: 0;
+    padding: 0;
+}
+
+.container-content {
+    width: 1100px; /* или любую фиксированную ширину */
+    margin: 0 auto;
+    min-height: 100vh;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
