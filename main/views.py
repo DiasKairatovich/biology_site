@@ -8,6 +8,5 @@ def index(request):
         "Раздел 4: Анатомия"
     ]
     return render(request, 'index.html', {'sections': sections})
-
 def section(request):
     return render(request, 'section.html')

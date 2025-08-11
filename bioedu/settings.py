@@ -14,7 +14,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'main',  # наше приложение
+    'main',
+    'users',
+    'tests',
 ]
 
 MIDDLEWARE = [
@@ -66,6 +68,9 @@ LANGUAGES = [
 TIME_ZONE = 'Asia/Almaty'
 USE_I18N = True
 USE_TZ = True
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'index'
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'main' / 'static']

@@ -1,2 +1,3 @@
 from django.contrib import admin
-# моделей в main нет
+
+# Register your models here.
