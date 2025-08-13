@@ -1,6 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 def index(request):
+    if not request.user.is_authenticated:
+        return redirect('login')  # если не авторизован — на логин
     sections = [
         "Раздел 1: Клетка",
         "Раздел 2: Генетика",

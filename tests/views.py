@@ -1,5 +1,8 @@
 from django.shortcuts import render
+from django.contrib.auth.decorators import user_passes_test
 
+def teacher_required(view_func):
+    return user_passes_test(lambda u: u.is_authenticated and u.is_teacher())(view_func)
 def test_list(request):
     return render(request, 'tests/test_list.html')
 

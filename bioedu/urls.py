@@ -5,15 +5,9 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-
-    # Главная страница и прочее
-    path('', include('main.urls')),
-
-    # Пользователи
-    path('users/', include('users.urls')),
-
-    # Тесты
-    path('tests/', include('tests.urls')),
+    path('', include('main.urls')), # Главная страница и прочее
+    path('users/', include('users.urls')), # Пользователи
+    path('tests/', include('tests.urls')), # Тесты
 ]
 
 # Для статики

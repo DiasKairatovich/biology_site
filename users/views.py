@@ -4,31 +4,22 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
-from .forms import RegisterForm
-
-def register_view(request):
-    if request.method == "POST":
-        form = RegisterForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Аккаунт успешно создан! Войдите в систему.")
-            return redirect('login')
-    else:
-        form = RegisterForm()
-    return render(request, 'users/register.html', {'form': form})
 
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('index')
+        return redirect('index')  # если уже вошёл — на главную
+
     if request.method == "POST":
         username = request.POST.get('username')
         password = request.POST.get('password')
+
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('index')
+            return redirect('index')  # <-- тут редирект обязательно
         else:
             messages.error(request, "Неверный логин или пароль")
+
     return render(request, 'users/login.html')
 
 @login_required

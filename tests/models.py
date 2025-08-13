@@ -1,10 +1,16 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings  # вместо прямого импорта User
 
 class Test(models.Model):
     title = models.CharField(max_length=255, verbose_name="Название теста")
     description = models.TextField(blank=True, verbose_name="Описание")
     category = models.CharField(max_length=100, blank=True, verbose_name="Категория/Раздел")
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="created_tests",
+        verbose_name="Автор"
+    )
 
     def __str__(self):
         return self.title
@@ -45,8 +51,9 @@ class Question(models.Model):
         verbose_name = "Вопрос"
         verbose_name_plural = "Вопросы"
 
+
 class Result(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Пользователь")
     test = models.ForeignKey(Test, on_delete=models.CASCADE, verbose_name="Тест")
     score = models.IntegerField(verbose_name="Баллы")
     total = models.IntegerField(verbose_name="Всего вопросов")
