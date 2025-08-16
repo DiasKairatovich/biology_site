@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load form_extras %}
+
+{% block content %}
+<h2 class="mb-4">Создать новый тест</h2>
+
+<form method="post">
+  {% csrf_token %}
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="mb-3">
+        <label class="form-label">Название</label>
+        {{ test_form.title|add_class:"form-control" }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Описание</label>
+        {{ test_form.description|add_class:"form-control" }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Категория</label>
+        {{ test_form.category|add_class:"form-control" }}
+      </div>
+    </div>
+  </div>
+
+  <h5 class="mb-2">Вопросы</h5>
+  {{ formset.management_form }}
+
+  {% for f in formset %}
+    <div class="card mb-3 question-form">
+      <div class="card-body">
+        <div class="mb-2">
+          <label class="form-label">Текст вопроса</label>
+          {{ f.text|add_class:"form-control" }}
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label">Тип вопроса</label>
+          {{ f.question_type|add_class:"form-select question-type" }}
+        </div>
+
+        <!-- MCQ блок -->
+        <div class="mcq-fields">
+          <div class="row g-2">
+            <div class="col-md-6">
+              <label class="form-label">Вариант 1</label>
+              {{ f.option1|add_class:"form-control" }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Вариант 2</label>
+              {{ f.option2|add_class:"form-control" }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Вариант 3</label>
+              {{ f.option3|add_class:"form-control" }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Вариант 4</label>
+              {{ f.option4|add_class:"form-control" }}
+            </div>
+          </div>
+          <div class="mt-2">
+            <label class="form-label">Номер правильного варианта (1–4)</label>
+            {{ f.correct_option|add_class:"form-control" }}
+          </div>
+        </div>
+
+        <!-- TF блок -->
+        <div class="tf-fields">
+          <label class="form-label">Правильный ответ</label>
+          {{ f.correct_bool }}
+          <small class="text-muted">(Отметь если «Верно»)</small>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+
+  <button type="submit" class="btn btn-success">Сохранить тест</button>
+</form>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".question-form").forEach(form => {
+    const select = form.querySelector(".question-type");
+    const mcqFields = form.querySelector(".mcq-fields");
+    const tfFields = form.querySelector(".tf-fields");
+
+    function toggleFields() {
+      if (select.value === "MCQ") {
+        mcqFields.style.display = "block";
+        tfFields.style.display = "none";
+      } else if (select.value === "TF") {
+        mcqFields.style.display = "none";
+        tfFields.style.display = "block";
+      }
+    }
+    select.addEventListener("change", toggleFields);
+    toggleFields();
+  });
+});
+</script>
+{% endblock %}

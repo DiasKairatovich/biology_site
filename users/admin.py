@@ -1,26 +1,51 @@
 from django.contrib import admin
 from django import forms
-from .models import User
 from django.contrib.auth.admin import UserAdmin
-from django.contrib.auth.forms import UserCreationForm
+from .models import User
 
+# Форма для создания пользователя (одно поле пароля)
+class CustomUserCreationForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput, label="Пароль")
 
-class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = User
-        fields = ("username", "email", "first_name", "last_name", "role", "password1", "password2")
+        fields = ("username", "email", "first_name", "last_name", "role", "password")
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data["password"])  # хэшируем пароль
+        if commit:
+            user.save()
+        return user
+
+
+# Форма для изменения пользователя
+class CustomUserChangeForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ("username", "email", "first_name", "last_name", "role", "is_active", "is_staff", "is_superuser")
 
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
     add_form = CustomUserCreationForm
-    fieldsets = UserAdmin.fieldsets + (
-        (None, {"fields": ("role",)}),
-    )
-    add_fieldsets = UserAdmin.add_fieldsets + (
-        (None, {"fields": ("role",)}),
-    )
+    form = CustomUserChangeForm
+    model = User
+
     list_display = ("username", "email", "first_name", "last_name", "role", "is_staff")
     list_filter = ("role", "is_staff", "is_superuser", "is_active")
     search_fields = ("username", "email", "first_name", "last_name")
     ordering = ("username",)
+
+    fieldsets = (
+        (None, {"fields": ("username", "email", "first_name", "last_name", "role", "password")}),
+        ("Permissions", {"fields": ("is_active", "is_staff", "is_superuser", "groups", "user_permissions")}),
+        ("Important dates", {"fields": ("last_login", "date_joined")}),
+    )
+
+    add_fieldsets = (
+        (None, {
+            "classes": ("wide",),
+            "fields": ("username", "email", "first_name", "last_name", "role", "password", "is_active", "is_staff"),
+        }),
+    )

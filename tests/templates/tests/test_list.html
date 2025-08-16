@@ -1,2 +1,20 @@
-<h1>Список тестов</h1>
-<p>Здесь будет список всех тестов.</p>
+{% extends 'base.html' %}
+{% block content %}
+<h3 class="mb-3">Практика</h3>
+<div class="row g-3">
+  {% for t in tests %}
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">{{ t.title }}</h5>
+        <p class="card-text small text-muted">{{ t.description|default:"" }}</p>
+        <p class="mb-2"><span class="badge bg-success">Вопросов: {{ t.q_count }}</span></p>
+        <a href="{% url 'take_test' t.id %}" class="btn btn-success w-100">Пройти</a>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <p>Тесты пока не созданы.</p>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3 class="mb-3">Мои тесты</h3>
+<div class="mb-3">
+  <a href="{% url 'create_test' %}" class="btn btn-success">+ Создать тест</a>
+</div>
+<table class="table table-striped align-middle">
+  <thead>
+    <tr>
+      <th>Название</th>
+      <th>Категория</th>
+      <th>Вопросов</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for t in tests %}
+      <tr>
+        <td>{{ t.title }}</td>
+        <td>{{ t.category }}</td>
+        <td>{{ t.q_count }}</td>
+        <td>
+          <a class="btn btn-outline-success btn-sm" href="{% url 'take_test' t.id %}">Просмотреть</a>
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="4">Пока нет созданных тестов.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

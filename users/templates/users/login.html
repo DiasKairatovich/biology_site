@@ -8,6 +8,22 @@
 
             <form method="post">
                 {% csrf_token %}
+
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        {% endfor %}
+                        {% if form.non_field_errors %}
+                            {% for error in form.non_field_errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                {% endif %}
+
                 <div class="mb-3">
                     <label class="form-label">Логин</label>
                     <input type="text" name="username" class="form-control" placeholder="Введите логин" required>

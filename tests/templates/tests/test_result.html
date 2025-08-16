@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+  <div class="card-body">
+    <h4 class="mb-2">Результат: {{ test.title }}</h4>
+    <p class="mb-1">Попытка: {{ attempt }}</p>
+    <p class="mb-1">Баллы: {{ score }} из {{ total }}</p>
+    <p class="mb-1">Процент: {{ percent }}%</p>
+    <p class="fw-semibold {% if passed %}text-success{% else %}text-danger{% endif %}">
+      {% if passed %}Тест пройден{% else %}Тест не пройден{% endif %}
+    </p>
+    <a href="{% url 'test_list' %}" class="btn btn-outline-success">К списку тестов</a>
+    <a href="{% url 'statistics' %}" class="btn btn-success ms-2">Статистика</a>
+  </div>
+</div>
+{% endblock %}
