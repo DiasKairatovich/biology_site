@@ -1,7 +1,8 @@
 body {
     background: url("../img/bg.png") left top no-repeat,
                 url("../img/bg.png") right top no-repeat;
-    background-size: auto 100%;
+    background-attachment: fixed, fixed; /* фиксируем оба фона */
+    background-size: auto 100%; /* размер по высоте экрана */
     background-color: white;
     margin: 0;
     padding: 0;

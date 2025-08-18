@@ -2,21 +2,21 @@
 {% load form_extras %}
 
 {% block content %}
-<h2 class="mb-4">Создать новый тест</h2>
+<h3 class="mb-3">Создать новый тест</h3>
 
 <form method="post">
   {% csrf_token %}
   <div class="card mb-3">
     <div class="card-body">
-      <div class="mb-3">
+      <div class="mb-2">
         <label class="form-label">Название</label>
         {{ test_form.title|add_class:"form-control" }}
       </div>
-      <div class="mb-3">
+      <div class="mb-2">
         <label class="form-label">Описание</label>
         {{ test_form.description|add_class:"form-control" }}
       </div>
-      <div class="mb-3">
+      <div class="mb-2">
         <label class="form-label">Категория</label>
         {{ test_form.category|add_class:"form-control" }}
       </div>
@@ -26,61 +26,172 @@
   <h5 class="mb-2">Вопросы</h5>
   {{ formset.management_form }}
 
-  {% for f in formset %}
+  <div id="questions-wrapper">
+    {% for f in formset %}
+      <div class="card mb-3 question-form" style="display: none;">
+        <div class="card-body">
+          {{ f.id }}   <!-- вот это скрытое поле обязательно -->
+          <div class="mb-2">
+            <label class="form-label">Текст вопроса</label>
+            {{ f.text|add_class:"form-control" }}
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">Тип вопроса</label>
+            {{ f.question_type|add_class:"form-select question-type" }}
+          </div>
+
+          <!-- MCQ блок -->
+          <div class="mcq-fields">
+            <div class="row g-2">
+              <div class="col-md-6">
+                <label class="form-label">Вариант 1</label>
+                {{ f.option1|add_class:"form-control" }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Вариант 2</label>
+                {{ f.option2|add_class:"form-control" }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Вариант 3</label>
+                {{ f.option3|add_class:"form-control" }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Вариант 4</label>
+                {{ f.option4|add_class:"form-control" }}
+              </div>
+            </div>
+            <div class="mt-2">
+              <label class="form-label">Номер правильного варианта (1–4)</label>
+              {{ f.correct_option|add_class:"form-control" }}
+            </div>
+          </div>
+
+          <!-- TF блок -->
+          <div class="tf-fields">
+            <label class="form-label">Правильный ответ</label>
+            {{ f.correct_bool }}
+            <small class="text-muted">(Отметь если «Верно»)</small>
+          </div>
+
+          <!-- Удаление -->
+          <div class="mt-3">
+            <label class="form-check-label">
+              {{ f.DELETE }} Удалить этот вопрос
+            </label>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Пустая форма-заготовка -->
+  <div id="empty-form" style="display: none;">
     <div class="card mb-3 question-form">
       <div class="card-body">
+        {{ formset.empty_form.id }}   <!-- вот это скрытое поле обязательно -->
         <div class="mb-2">
           <label class="form-label">Текст вопроса</label>
-          {{ f.text|add_class:"form-control" }}
+          {{ formset.empty_form.text|add_class:"form-control" }}
         </div>
 
         <div class="mb-2">
           <label class="form-label">Тип вопроса</label>
-          {{ f.question_type|add_class:"form-select question-type" }}
+          {{ formset.empty_form.question_type|add_class:"form-select question-type" }}
         </div>
 
-        <!-- MCQ блок -->
+        <!-- MCQ -->
         <div class="mcq-fields">
           <div class="row g-2">
             <div class="col-md-6">
               <label class="form-label">Вариант 1</label>
-              {{ f.option1|add_class:"form-control" }}
+              {{ formset.empty_form.option1|add_class:"form-control" }}
             </div>
             <div class="col-md-6">
               <label class="form-label">Вариант 2</label>
-              {{ f.option2|add_class:"form-control" }}
+              {{ formset.empty_form.option2|add_class:"form-control" }}
             </div>
             <div class="col-md-6">
               <label class="form-label">Вариант 3</label>
-              {{ f.option3|add_class:"form-control" }}
+              {{ formset.empty_form.option3|add_class:"form-control" }}
             </div>
             <div class="col-md-6">
               <label class="form-label">Вариант 4</label>
-              {{ f.option4|add_class:"form-control" }}
+              {{ formset.empty_form.option4|add_class:"form-control" }}
             </div>
           </div>
           <div class="mt-2">
             <label class="form-label">Номер правильного варианта (1–4)</label>
-            {{ f.correct_option|add_class:"form-control" }}
+            {{ formset.empty_form.correct_option|add_class:"form-control" }}
           </div>
         </div>
 
-        <!-- TF блок -->
+        <!-- TF -->
         <div class="tf-fields">
           <label class="form-label">Правильный ответ</label>
-          {{ f.correct_bool }}
+          {{ formset.empty_form.correct_bool }}
           <small class="text-muted">(Отметь если «Верно»)</small>
+        </div>
+
+        <!-- Удаление -->
+        <div class="mt-3">
+          <label class="form-check-label">
+            {{ formset.empty_form.DELETE }} Удалить этот вопрос
+          </label>
         </div>
       </div>
     </div>
-  {% endfor %}
+  </div>
 
-  <button type="submit" class="btn btn-success">Сохранить тест</button>
+  <!-- Навигация -->
+  <div class="d-flex justify-content-between my-3">
+    <button type="button" id="prev-btn" class="btn btn-outline-secondary">← Назад</button>
+    <button type="button" id="next-btn" class="btn btn-outline-secondary">Вперёд →</button>
+  </div>
+
+  <!-- Основные кнопки -->
+  <div class="btn-row">
+    <button type="button" id="add-question" class="btn btn-primary">Добавить вопрос</button>
+    <button type="submit" class="btn btn-success">Сохранить тест</button>
+  </div>
 </form>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  document.querySelectorAll(".question-form").forEach(form => {
+  const questionsWrapper = document.getElementById("questions-wrapper");
+  const totalFormsInput = document.querySelector("#id_" + "{{ formset.prefix }}" + "-TOTAL_FORMS");
+  const emptyForm = document.getElementById("empty-form").innerHTML;
+
+  const prevBtn = document.getElementById("prev-btn");
+  const nextBtn = document.getElementById("next-btn");
+
+  let currentIndex = 0;
+
+  function showQuestion(index) {
+    const questions = questionsWrapper.querySelectorAll(".question-form");
+    questions.forEach((q, i) => q.style.display = (i === index ? "block" : "none"));
+    prevBtn.style.display = (index > 0) ? "inline-block" : "none";
+    nextBtn.style.display = (index < questions.length - 1) ? "inline-block" : "none";
+  }
+
+  // навигация
+  prevBtn.addEventListener("click", () => {
+    if (currentIndex > 0) {
+      currentIndex--;
+      showQuestion(currentIndex);
+    }
+  });
+
+  nextBtn.addEventListener("click", () => {
+    const questions = questionsWrapper.querySelectorAll(".question-form");
+    if (currentIndex < questions.length - 1) {
+      currentIndex++;
+      showQuestion(currentIndex);
+    }
+  });
+
+  // логика MCQ/TF
+  function initQuestionForm(form) {
     const select = form.querySelector(".question-type");
     const mcqFields = form.querySelector(".mcq-fields");
     const tfFields = form.querySelector(".tf-fields");
@@ -96,7 +207,33 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     select.addEventListener("change", toggleFields);
     toggleFields();
+  }
+
+  // инициализация уже существующих
+  questionsWrapper.querySelectorAll(".question-form").forEach(initQuestionForm);
+
+  // добавить вопрос
+  document.getElementById("add-question").addEventListener("click", function () {
+    let formCount = parseInt(totalFormsInput.value);
+    let newFormHtml = emptyForm.replace(/__prefix__/g, formCount);
+
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = newFormHtml;
+    const newForm = tempDiv.firstElementChild;
+
+    questionsWrapper.appendChild(newForm);
+
+    totalFormsInput.value = formCount + 1;
+
+    initQuestionForm(newForm);
+
+    // перейти к новому вопросу
+    currentIndex = formCount;
+    showQuestion(currentIndex);
   });
+
+  // показать первый вопрос
+  showQuestion(currentIndex);
 });
 </script>
 {% endblock %}

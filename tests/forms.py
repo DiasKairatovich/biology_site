@@ -8,6 +8,9 @@ class TestForm(forms.ModelForm):
     class Meta:
         model = Test
         fields = ["title", "description", "category"]
+        widgets = {
+            "description": forms.Textarea(attrs={"rows": 3, "class": "form-control"})
+        }
 
 
 class QuestionForm(forms.ModelForm):
@@ -20,7 +23,7 @@ class QuestionForm(forms.ModelForm):
             "correct_bool"
         ]
         widgets = {
-            "text": forms.Textarea(attrs={"rows": 2}),
+            "text": forms.Textarea(attrs={"rows": 1}),
             "question_type": forms.Select(attrs={"class": "form-select"}),
         }
 
@@ -40,8 +43,8 @@ class QuestionForm(forms.ModelForm):
 QuestionFormSet = inlineformset_factory(
     Test,
     Question,
-    form=QuestionForm,
-    extra=1,     # по умолчанию 1 вопрос
+    form=QuestionForm, # универсальная форма для MCQ/TF
+    extra=1, # показывает 1 пустую форму сразу
     can_delete=True
 )
 
@@ -50,7 +53,8 @@ def save_test_with_questions(test_form, formset, author):
     """Сохраняем тест и вопросы атомарно"""
     with transaction.atomic():
         test = test_form.save(commit=False)
-        test.author = author
+        if not test.pk:
+            test.author = author
         test.save()
         formset.instance = test
         formset.save()

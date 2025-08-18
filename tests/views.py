@@ -17,16 +17,26 @@ def test_list(request):
     return render(request, "tests/test_list.html", {"tests": tests})
 
 
+# --- Мои тесты (только учителя) ---
+@login_required
+def manage_tests(request):
+    tests = (
+        Test.objects.filter(author=request.user)
+        .annotate(q_count=Count("questions"))
+    )
+    return render(request, "tests/manage_tests.html", {"tests": tests})
+
+
 # --- Создание теста (только учителя) ---
 @login_required
 def create_test(request):
-    if request.user.role != "teacher":
+    if not request.user.groups.filter(name="Учителя").exists():
         messages.error(request, "Только учителя могут создавать тесты.")
         return redirect("test_list")
 
     if request.method == "POST":
         test_form = TestForm(request.POST)
-        formset = QuestionFormSet(request.POST)
+        formset = QuestionFormSet(request.POST, prefix="questions")
 
         if test_form.is_valid() and formset.is_valid():
             save_test_with_questions(test_form, formset, request.user)
@@ -34,7 +44,28 @@ def create_test(request):
             return redirect("manage_tests")
     else:
         test_form = TestForm()
-        formset = QuestionFormSet()
+        formset = QuestionFormSet(prefix="questions")
+
+    return render(request, "tests/create_test.html", {
+        "test_form": test_form,
+        "formset": formset,
+    })
+
+@login_required
+def edit_test(request, test_id):
+    test = get_object_or_404(Test, pk=test_id, author=request.user)
+
+    if request.method == "POST":
+        test_form = TestForm(request.POST, instance=test)
+        formset = QuestionFormSet(request.POST, instance=test, prefix="questions")
+
+        if test_form.is_valid() and formset.is_valid():
+            save_test_with_questions(test_form, formset, request.user)
+            messages.success(request, "Тест обновлён!")
+            return redirect("manage_tests")
+    else:
+        test_form = TestForm(instance=test)
+        formset = QuestionFormSet(instance=test, prefix="questions")
 
     return render(request, "tests/create_test.html", {
         "test_form": test_form,
@@ -42,11 +73,18 @@ def create_test(request):
     })
 
 
-# --- Мои тесты (только учителя) ---
 @login_required
-def manage_tests(request):
-    tests = Test.objects.filter(author=request.user)
-    return render(request, "tests/manage_tests.html", {"tests": tests})
+def delete_test(request, test_id):
+    test = get_object_or_404(Test, pk=test_id, author=request.user)
+
+    if request.method == "POST":
+        test.delete()
+        messages.success(request, f"Тест «{test.title}» удалён.")
+        return redirect("manage_tests")
+
+    # отдельная страница подтверждения
+    return render(request, "tests/confirm_delete.html", {"test": test})
+
 
 @login_required
 def take_test(request, test_id):

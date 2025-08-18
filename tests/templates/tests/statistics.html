@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
+{% load group_tags %}   {# не забудь загрузить свои теги #}
 {% block content %}
 <h3 class="mb-3">Статистика</h3>
 
-{% if mode == "teacher" %}
+{% if user|has_group:"Учителя" %}
   <form method="get" class="row g-2 mb-3">
     <div class="col-auto">
       <select name="test" class="form-select">

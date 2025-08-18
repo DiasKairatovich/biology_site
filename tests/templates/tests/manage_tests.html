@@ -10,7 +10,7 @@
       <th>Название</th>
       <th>Категория</th>
       <th>Вопросов</th>
-      <th></th>
+      <th>Действия</th>
     </tr>
   </thead>
   <tbody>
@@ -21,6 +21,15 @@
         <td>{{ t.q_count }}</td>
         <td>
           <a class="btn btn-outline-success btn-sm" href="{% url 'take_test' t.id %}">Просмотреть</a>
+          <a class="btn btn-outline-primary btn-sm" href="{% url 'edit_test' t.id %}">Редактировать</a>
+
+          <form method="post" action="{% url 'delete_test' t.id %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-danger btn-sm"
+                    onclick="return confirm('Удалить тест «{{ t.title }}»?');">
+              Удалить
+            </button>
+          </form>
         </td>
       </tr>
     {% empty %}
