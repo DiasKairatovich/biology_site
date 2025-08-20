@@ -1,14 +1,15 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block content %}
-<h1 class="mb-4">Добро пожаловать!</h1>
+<h1 class="mb-4">{% trans "Добро пожаловать!" %}</h1>
 <div class="row">
     {% for section in sections %}
     <div class="col-md-6 mb-3">
         <div class="card" style="background-color: #A8E6A2;">
             <div class="card-body">
                 <h5 class="card-title">{{ section }}</h5>
-                <a href="/section/" class="btn btn-primary">Открыть</a>
+                <a href="/section/" class="btn btn-primary">{% trans "Открыть" %}</a>
             </div>
         </div>
     </div>

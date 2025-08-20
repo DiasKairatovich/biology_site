@@ -63,7 +63,14 @@
                         </li>
                     {% endif %}
                     <li class="nav-item ms-3">
-                        <span>RU | EN | KK</span>
+                      <form action="{% url 'set_language' %}" method="post">
+                        {% csrf_token %}
+                        <select name="language" onchange="this.form.submit()" class="form-select form-select-sm">
+                          <option value="ru" {% if LANGUAGE_CODE == 'ru' %}selected{% endif %}>RU</option>
+                          <option value="en" {% if LANGUAGE_CODE == 'en' %}selected{% endif %}>EN</option>
+                          <option value="kk" {% if LANGUAGE_CODE == 'kk' %}selected{% endif %}>KK</option>
+                        </select>
+                      </form>
                     </li>
                 </ul>
             </div>
