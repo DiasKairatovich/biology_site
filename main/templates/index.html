@@ -3,13 +3,16 @@
 
 {% block content %}
 <h1 class="mb-4">{% trans "Добро пожаловать!" %}</h1>
+<p class="lead">{% trans "Выберите раздел для изучения:" %}</p>
+
 <div class="row">
     {% for section in sections %}
-    <div class="col-md-6 mb-3">
-        <div class="card" style="background-color: #A8E6A2;">
-            <div class="card-body">
-                <h5 class="card-title">{{ section }}</h5>
-                <a href="/section/" class="btn btn-primary">{% trans "Открыть" %}</a>
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm h-100 border-0" style="background-color: #E9F7EF;">
+            <div class="card-body d-flex flex-column justify-content-between">
+                <h5 class="card-title">{{ section.title }}</h5>
+                <p class="card-text text-muted">{{ section.description|truncatechars:100 }}</p>
+                <a href="{% url 'section_detail' section.id %}" class="btn btn-success mt-3">{% trans "Открыть" %}</a>
             </div>
         </div>
     </div>

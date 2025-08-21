@@ -14,6 +14,7 @@ urlpatterns += i18n_patterns(
     path('', include('main.urls')), # Главная страница и прочее
     path('users/', include('users.urls')), # Пользователи
     path('tests/', include('tests.urls')), # Тесты
+    path('theory/', include('theory.urls')),
 )
 
 # Для статики

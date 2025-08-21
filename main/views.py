@@ -1,14 +1,12 @@
 from django.shortcuts import render, redirect
+from theory.models import Section  # импортируем модели теории
 
 def index(request):
     if not request.user.is_authenticated:
-        return redirect('login')  # если не авторизован — на логин
-    sections = [
-        "Раздел 1: Клетка",
-        "Раздел 2: Генетика",
-        "Раздел 3: Экология",
-        "Раздел 4: Анатомия"
-    ]
-    return render(request, 'index.html', {'sections': sections})
-def section(request):
-    return render(request, 'section.html')
+        return redirect("login")  # если не авторизован — на логин
+    sections = Section.objects.all()
+    return render(request, "index.html", {"sections": sections})
+
+def section_list(request):
+    sections = Section.objects.all()
+    return render(request, "section_list.html", {"sections": sections})

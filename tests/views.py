@@ -176,7 +176,7 @@ def submit_test(request, test_id):
 
 @login_required
 def statistics(request):
-    if getattr(request.user, "role", "") == "teacher":
+    if request.user.groups.filter(name="Учителя").exists():
         # Результаты по тестам, созданным учителем
         tests_qs = Test.objects.filter(author=request.user)
         test_id = request.GET.get("test")
