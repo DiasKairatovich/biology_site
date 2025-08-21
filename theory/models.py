@@ -8,6 +8,10 @@ class Section(models.Model):
     def __str__(self):
         return self.title
 
+    class Meta:
+        verbose_name = "Раздел"
+        verbose_name_plural = "Разделы"
+
 
 class Topic(models.Model):
     section = models.ForeignKey(Section, related_name="topics", on_delete=models.CASCADE)
@@ -18,6 +22,8 @@ class Topic(models.Model):
 
     class Meta:
         ordering = ["order"]
+        verbose_name = "Тема"
+        verbose_name_plural = "Темы"
 
     def __str__(self):
         return f"{self.section.title} — {self.title}"
