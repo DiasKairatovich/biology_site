@@ -7,18 +7,44 @@
 <form method="post">
     {% csrf_token %}
     {% for question in questions %}
-        <div class="mb-4">
-            <p><strong>{{ forloop.counter }}. {{ question.text }}</strong></p>
-            {% for n, opt in question.options %}
-                <div class="form-check">
-                    <input class="form-check-input" type="radio"
-                           name="q{{ question.id }}" value="{{ n }}" id="q{{ question.id }}_{{ n }}">
-                    <label class="form-check-label" for="q{{ question.id }}_{{ n }}">
-                        {{ opt }}
-                    </label>
-                </div>
+      <div class="mb-4">
+        <p><strong>{{ forloop.counter }}. {{ question.obj.text }}</strong></p>
+
+        {% if question.obj.question_type == "MCQ" %}
+          {% for n, opt in question.options %}
+            <div class="form-check">
+              <input class="form-check-input" type="radio"
+                     name="q{{ question.obj.id }}" value="{{ n }}" id="q{{ question.obj.id }}_{{ n }}">
+              <label class="form-check-label" for="q{{ question.obj.id }}_{{ n }}">
+                {{ opt }}
+              </label>
+            </div>
+          {% endfor %}
+
+        {% elif question.obj.question_type == "MCQ_IMG" %}
+          <div class="d-flex flex-wrap">
+            {% for n, img in question.images %}
+              <div class="m-2 text-center">
+                <input type="radio" name="q{{ question.obj.id }}" value="{{ n }}" id="q{{ question.obj.id }}_{{ n }}">
+                <label for="q{{ question.obj.id }}_{{ n }}">
+                  <img src="{{ img.url }}" style="width: 200px; height: 200px; object-fit: cover;">
+                </label>
+              </div>
             {% endfor %}
-        </div>
+          </div>
+
+        {% elif question.obj.question_type == "TF" %}
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="q{{ question.obj.id }}" value="true" id="q{{ question.obj.id }}_true">
+            <label class="form-check-label" for="q{{ question.obj.id }}_true">Верно</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="q{{ question.obj.id }}" value="false" id="q{{ question.obj.id }}_false">
+            <label class="form-check-label" for="q{{ question.obj.id }}_false">Неверно</label>
+          </div>
+
+        {% endif %}
+      </div>
     {% endfor %}
 
     <button type="submit" class="btn btn-success">Отправить</button>

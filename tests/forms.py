@@ -19,7 +19,9 @@ class QuestionForm(forms.ModelForm):
         fields = [
             "text",
             "question_type",
-            "option1", "option2", "option3", "option4", "correct_option",
+            "option1", "option2", "option3", "option4",
+            "image1", "image2", "image3", "image4",
+            "correct_option",
             "correct_bool"
         ]
         widgets = {
@@ -34,9 +36,16 @@ class QuestionForm(forms.ModelForm):
         if q_type == "MCQ":
             if not cleaned_data.get("correct_option"):
                 raise forms.ValidationError("Для MCQ необходимо указать правильный вариант ответа.")
+        elif q_type == "MCQ_IMG":
+            if not cleaned_data.get("correct_option"):
+                raise forms.ValidationError("Для MCQ с картинками нужно указать правильный вариант.")
+            if not any([cleaned_data.get("image1"), cleaned_data.get("image2"),
+                        cleaned_data.get("image3"), cleaned_data.get("image4")]):
+                raise forms.ValidationError("Добавьте хотя бы одну картинку.")
         elif q_type == "TF":
             if cleaned_data.get("correct_bool") is None:
                 raise forms.ValidationError("Для True/False нужно выбрать правильный ответ.")
+
         return cleaned_data
 
 

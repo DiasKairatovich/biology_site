@@ -35,8 +35,8 @@ def create_test(request):
         return redirect("test_list")
 
     if request.method == "POST":
-        test_form = TestForm(request.POST)
-        formset = QuestionFormSet(request.POST, prefix="questions")
+        test_form = TestForm(request.POST, request.FILES)
+        formset = QuestionFormSet(request.POST, request.FILES, prefix="questions")
 
         if test_form.is_valid() and formset.is_valid():
             save_test_with_questions(test_form, formset, request.user)
@@ -56,8 +56,8 @@ def edit_test(request, test_id):
     test = get_object_or_404(Test, pk=test_id, author=request.user)
 
     if request.method == "POST":
-        test_form = TestForm(request.POST, instance=test)
-        formset = QuestionFormSet(request.POST, instance=test, prefix="questions")
+        test_form = TestForm(request.POST, request.FILES, instance=test)
+        formset = QuestionFormSet(request.POST, request.FILES, instance=test, prefix="questions")
 
         if test_form.is_valid() and formset.is_valid():
             save_test_with_questions(test_form, formset, request.user)
@@ -89,31 +89,42 @@ def delete_test(request, test_id):
 @login_required
 def take_test(request, test_id):
     test = get_object_or_404(Test, pk=test_id)
+    questions = test.questions.all()
 
-    # Только MCQ вопросы
-    questions = test.questions.filter(question_type="MCQ")
-
+    # Подготавливаем удобные структуры для шаблона
+    prepared_questions = []
     for q in questions:
-        q.options = [
-            (1, q.option1),
-            (2, q.option2),
-            (3, q.option3),
-            (4, q.option4),
-        ]
-        q.options = [(num, text) for num, text in q.options if text]
+        if q.question_type == "MCQ":
+            options = [(1, q.option1), (2, q.option2), (3, q.option3), (4, q.option4)]
+            options = [(num, text) for num, text in options if text]  # убираем пустые
+            prepared_questions.append({"obj": q, "options": options})
+
+        elif q.question_type == "MCQ_IMG":
+            images = [(1, q.image1), (2, q.image2), (3, q.image3), (4, q.image4)]
+            images = [(num, img) for num, img in images if img]  # только загруженные
+            prepared_questions.append({"obj": q, "images": images})
+
+        elif q.question_type == "TF":
+            prepared_questions.append({"obj": q, "tf": True})
 
     if request.method == "POST":
         score = 0
-        total = questions.count()
+        total = len(prepared_questions)
 
-        for q in questions:
-            selected = request.POST.get(f"q{q.id}")
-            if selected and int(selected) == q.correct_option:
-                score += 1
+        for q in prepared_questions:
+            question = q["obj"]
+            selected = request.POST.get(f"q{question.id}")
 
-        passed = score >= total / 2  # например, порог «сдал» = половина
+            if question.question_type in ["MCQ", "MCQ_IMG"]:
+                if selected and int(selected) == question.correct_option:
+                    score += 1
+            elif question.question_type == "TF":
+                if (selected == "true" and question.correct_bool) or \
+                   (selected == "false" and not question.correct_bool):
+                    score += 1
 
-        # Сохраняем результат
+        passed = score >= total / 2  # сдача, если >= половины правильных
+
         Result.objects.create(
             user=request.user,
             test=test,
@@ -123,13 +134,17 @@ def take_test(request, test_id):
         )
 
         messages.success(request, f"Вы набрали {score} из {total}.")
-        return redirect("statistics")  # например, сразу на страницу статистики
+        return redirect("statistics")  # например, на страницу статистики
 
     if not questions.exists():
         messages.warning(request, "В этом тесте пока нет вопросов.")
         return redirect("test_list")
 
-    return render(request, "tests/take_test.html", {"test": test, "questions": questions})
+    return render(
+        request,
+        "tests/take_test.html",
+        {"test": test, "questions": prepared_questions},
+    )
 
 
 @login_required

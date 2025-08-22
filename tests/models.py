@@ -24,6 +24,7 @@ class Question(models.Model):
     QUESTION_TYPES = [
         ('MCQ', 'Выбор одного ответа'),
         ('TF', 'Верно / Неверно'),
+        ('MCQ_IMG', 'Выбор картинки'),
     ]
 
     test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name='questions', verbose_name="Тест")
@@ -35,6 +36,13 @@ class Question(models.Model):
     option2 = models.CharField(max_length=255, blank=True, verbose_name="Вариант 2")
     option3 = models.CharField(max_length=255, blank=True, verbose_name="Вариант 3")
     option4 = models.CharField(max_length=255, blank=True, verbose_name="Вариант 4")
+
+    # Для MCQ_IMG (варианты-картинки)
+    image1 = models.ImageField(upload_to="questions/", blank=True, null=True, verbose_name="Картинка 1")
+    image2 = models.ImageField(upload_to="questions/", blank=True, null=True, verbose_name="Картинка 2")
+    image3 = models.ImageField(upload_to="questions/", blank=True, null=True, verbose_name="Картинка 3")
+    image4 = models.ImageField(upload_to="questions/", blank=True, null=True, verbose_name="Картинка 4")
+
     correct_option = models.PositiveSmallIntegerField(blank=True, null=True, verbose_name="Номер правильного варианта")
 
     # Для TF

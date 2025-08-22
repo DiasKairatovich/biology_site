@@ -2,9 +2,9 @@
 {% load form_extras %}
 
 {% block content %}
-<h3 class="mb-3">Создать новый тест</h3>
+<h3>{% if test_form.instance.pk %}Редактировать тест{% else %}Создать новый тест{% endif %}</h3>
 
-<form method="post">
+<form method="post" enctype="multipart/form-data">
   {% csrf_token %}
   <div class="card mb-3">
     <div class="card-body">
@@ -67,6 +67,32 @@
             </div>
           </div>
 
+          <!-- MCQ with images -->
+          <div class="mcq-img-fields">
+            <div class="row g-2">
+              <div class="col-md-6">
+                <label class="form-label">Картинка 1</label>
+                {{ f.image1 }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Картинка 2</label>
+                {{ f.image2 }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Картинка 3</label>
+                {{ f.image3 }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Картинка 4</label>
+                {{ f.image4 }}
+              </div>
+            </div>
+            <div class="mt-2">
+              <label class="form-label">Номер правильного варианта (1–4)</label>
+              {{ f.correct_option|add_class:"form-control" }}
+            </div>
+          </div>
+
           <!-- TF блок -->
           <div class="tf-fields">
             <label class="form-label">Правильный ответ</label>
@@ -118,6 +144,32 @@
             <div class="col-md-6">
               <label class="form-label">Вариант 4</label>
               {{ formset.empty_form.option4|add_class:"form-control" }}
+            </div>
+          </div>
+          <div class="mt-2">
+            <label class="form-label">Номер правильного варианта (1–4)</label>
+            {{ formset.empty_form.correct_option|add_class:"form-control" }}
+          </div>
+        </div>
+
+        <!-- MCQ with images -->
+        <div class="mcq-img-fields">
+          <div class="row g-2">
+            <div class="col-md-6">
+              <label class="form-label">Картинка 1</label>
+              {{ formset.empty_form.image1 }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Картинка 2</label>
+              {{ formset.empty_form.image2 }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Картинка 3</label>
+              {{ formset.empty_form.image3 }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Картинка 4</label>
+              {{ formset.empty_form.image4 }}
             </div>
           </div>
           <div class="mt-2">
@@ -195,14 +247,21 @@ document.addEventListener("DOMContentLoaded", function () {
     const select = form.querySelector(".question-type");
     const mcqFields = form.querySelector(".mcq-fields");
     const tfFields = form.querySelector(".tf-fields");
+    const mcqImgFields = form.querySelector(".mcq-img-fields");
 
     function toggleFields() {
       if (select.value === "MCQ") {
         mcqFields.style.display = "block";
         tfFields.style.display = "none";
+        mcqImgFields.style.display = "none";
       } else if (select.value === "TF") {
         mcqFields.style.display = "none";
         tfFields.style.display = "block";
+        mcqImgFields.style.display = "none";
+      } else if (select.value === "MCQ_IMG") {
+        mcqFields.style.display = "none";
+        tfFields.style.display = "none";
+        mcqImgFields.style.display = "block";
       }
     }
     select.addEventListener("change", toggleFields);
