@@ -31,17 +31,11 @@
                 <ul class="navbar-nav">
                     <li class="nav-item"><a class="nav-link" href="{% url 'index' %}">Главная</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'section_list' %}">Теория</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'test_list' %}">Практика</a></li>
 
                     {% if user.is_authenticated %}
-                        <li class="nav-item"><a class="nav-link" href="{% url 'test_list' %}">Практика</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'statistics' %}">Статистика</a></li>
                     {% endif %}
-
-                    {% if user.is_authenticated and user|has_group:"Учителя" %}
-                        <li class="nav-item"><a class="nav-link" href="{% url 'create_test' %}">Создать тест</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{% url 'manage_tests' %}">Мои тесты</a></li>
-                    {% endif %}
-
-                    <li class="nav-item"><a class="nav-link" href="{% url 'statistics' %}">Статистика</a></li>
                 </ul>
 
                 <!-- Правая часть -->

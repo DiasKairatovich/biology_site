@@ -8,13 +8,13 @@ urlpatterns = [
     path("i18n/", include("django.conf.urls.i18n")),  # Переключатель языка
 ]
 
-
 urlpatterns += i18n_patterns(
     path('admin/', admin.site.urls),
     path('', include('main.urls')), # Главная страница и прочее
     path('users/', include('users.urls')), # Пользователи
     path('tests/', include('tests.urls')), # Тесты
-    path('theory/', include('theory.urls')),
+    path('theory/', include('theory.urls')), # Теория
+    path("ckeditor/", include("ckeditor_uploader.urls")), # Окно редактирования на подобии Word
 )
 
 # Для статики

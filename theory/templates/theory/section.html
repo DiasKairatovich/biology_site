@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load group_tags %}
+
+{% block content %}
+<div class="row">
+    <!-- Боковое меню -->
+    <div class="col-md-3">
+        <div class="list-group shadow-sm">
+            {% for topic in topics %}
+            <a href="{% url 'topic' topic.id %}"
+               class="list-group-item list-group-item-action {% if topic.id == current_topic.id %}active{% endif %}">
+                {{ topic.title }}
+            </a>
+            {% endfor %}
+        </div>
+
+        <!-- Кнопка "Добавить тему" -->
+        {% if user.is_authenticated and user|has_group:"Учителя" %}
+        <div class="mt-3 text-center">
+            <a href="{% url 'create_topic' section.id %}" class="btn btn-outline-primary w-100">
+                + {% trans "Добавить тему" %}
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Контент -->
+    <div class="col-md-9">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                {% if current_topic %}
+                    <h3>{{ current_topic.title }}</h3>
+
+                    <!-- Кнопка "Редактировать тему" -->
+                    {% if user.is_authenticated and user|has_group:"Учителя" %}
+                    <div class="text-end mb-3">
+                        <a href="{% url 'edit_topic' current_topic.id %}" class="btn btn-sm btn-warning">
+                            ✏ {% trans "Редактировать" %}
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <p>{{ current_topic.content|safe }}</p>
+
+                    {% if current_topic.test %}
+                    <div class="mt-4 text-end">
+                        <a href="{% url 'take_test' current_topic.test.id %}" class="btn btn-primary">
+                            {% trans "Перейти к тесту" %}
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="mt-4 text-muted">
+                        {% trans "Тест к этой теме пока недоступен." %}
+                    </div>
+                    {% endif %}
+                {% else %}
+                    <p class="text-muted">В этом разделе пока нет тем.</p>
+
+                    {% if user.is_authenticated and user|has_group:"Учителя" %}
+                    <div class="mt-3">
+                        <a href="{% url 'create_topic' section.id %}" class="btn btn-outline-primary">
+                            + Добавить первую тему
+                        </a>
+                    </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

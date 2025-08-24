@@ -1,8 +1,17 @@
 {% extends 'base.html' %}
+{% load group_tags %}
 {% load i18n %}
 
 {% block content %}
 <h1 class="mb-4">{% trans "Все разделы" %}</h1>
+
+<!-- Кнопки только для учителей -->
+{% if user.is_authenticated and user|has_group:"Учителя" %}
+  <div class="mb-3">
+      <a href="{% url 'create_section' %}" class="btn btn-success">+ {% trans "Добавить раздел" %}</a>
+      <a href="{% url 'manage_sections' %}" class="btn btn-success">{% trans "Мои разделы" %}</a>
+  </div>
+{% endif %}
 
 <div class="row">
     {% for section in sections %}

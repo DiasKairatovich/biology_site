@@ -30,10 +30,6 @@ def manage_tests(request):
 # --- Создание теста (только учителя) ---
 @login_required
 def create_test(request):
-    if not request.user.groups.filter(name="Учителя").exists():
-        messages.error(request, "Только учителя могут создавать тесты.")
-        return redirect("test_list")
-
     if request.method == "POST":
         test_form = TestForm(request.POST, request.FILES)
         formset = QuestionFormSet(request.POST, request.FILES, prefix="questions")
@@ -83,7 +79,7 @@ def delete_test(request, test_id):
         return redirect("manage_tests")
 
     # отдельная страница подтверждения
-    return render(request, "tests/confirm_delete.html", {"test": test})
+    return render(request, "tests/confirm_delete_test.html", {"test": test})
 
 
 @login_required

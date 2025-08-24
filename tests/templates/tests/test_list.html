@@ -1,6 +1,18 @@
 {% extends 'base.html' %}
+{% load group_tags %}
+{% load i18n %}
+
 {% block content %}
-<h3 class="mb-3">Практика</h3>
+<h1 class="mb-4">{% trans "Тестирование" %}</h1>
+
+<!-- Кнопки только для учителей -->
+{% if user.is_authenticated and user|has_group:"Учителя" %}
+  <div class="mb-3">
+      <a href="{% url 'create_test' %}" class="btn btn-success">+ {% trans "Создать тест" %}</a>
+      <a href="{% url 'manage_tests' %}" class="btn btn-success">{% trans "Мои тесты" %}</a>
+  </div>
+{% endif %}
+
 <div class="row g-3">
   {% for t in tests %}
   <div class="col-md-6 col-lg-4">

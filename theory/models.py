@@ -1,5 +1,6 @@
 from django.db import models
 from tests.models import Test  # связь с тестами
+from ckeditor_uploader.fields import RichTextUploadingField  # для окна на подобии word
 
 class Section(models.Model):
     title = models.CharField(max_length=200)
@@ -16,7 +17,7 @@ class Section(models.Model):
 class Topic(models.Model):
     section = models.ForeignKey(Section, related_name="topics", on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
-    content = models.TextField()
+    content = RichTextUploadingField() # WYSIWYG-редактор
     order = models.PositiveIntegerField(default=0)  # для сортировки внутри раздела
     test = models.OneToOneField(Test, on_delete=models.SET_NULL, null=True, blank=True)
 

@@ -19,6 +19,8 @@ INSTALLED_APPS = [
     'users',
     'tests',
     'theory',
+    "ckeditor", # для редактирования окна теория
+    "ckeditor_uploader",  # если хотим загрузку файлов
 ]
 
 MIDDLEWARE = [
@@ -83,9 +85,21 @@ LOGIN_REDIRECT_URL = 'index'
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'main' / 'static']
+STATIC_ROOT = BASE_DIR / "staticfiles"     # сюда collectstatic соберёт всё
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+CKEDITOR_UPLOAD_PATH = "uploads/"   # куда будут складываться картинки
+CKEDITOR_IMAGE_BACKEND = "pillow"
+
+CKEDITOR_CONFIGS = {
+    "default": {
+        "toolbar": "full",   # или кастомная настройка
+        "height": 400,
+        "width": "100%",
+    },
+}
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

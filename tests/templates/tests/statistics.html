@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load group_tags %}   {# не забудь загрузить свои теги #}
 {% block content %}
-<h3 class="mb-3">Статистика</h3>
+<h1 class="mb-4">Статистика</h1>
 
 {% if user|has_group:"Учителя" %}
   <form method="get" class="row g-2 mb-3">
