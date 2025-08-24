@@ -27,7 +27,7 @@
               <div class="m-2 text-center">
                 <input type="radio" name="q{{ question.obj.id }}" value="{{ n }}" id="q{{ question.obj.id }}_{{ n }}">
                 <label for="q{{ question.obj.id }}_{{ n }}">
-                  <img src="{{ img.url }}" style="width: 200px; height: 200px; object-fit: cover;">
+                  <img src="{{ img.url }}" class="img-thumbnail" style="width: 200px; height: 200px; object-fit: cover;">
                 </label>
               </div>
             {% endfor %}

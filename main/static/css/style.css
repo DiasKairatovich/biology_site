@@ -15,3 +15,18 @@ body {
     background-color: white;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
+
+/* по умолчанию все картинки с лёгкой рамкой */
+label img {
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    padding: 2px;
+    transition: all 0.2s ease-in-out;
+}
+
+/* когда radio выбран — подсвечиваем картинку */
+input[type="radio"]:checked + label img {
+    border: 3px solid #0d6efd;   /* синий */
+    box-shadow: 0 0 10px rgba(13, 110, 253, 0.6);
+    transform: scale(1.05);      /* лёгкое увеличение */
+}
