@@ -1,10 +1,10 @@
 from django import forms
 from .models import Section, Topic
-from ckeditor_uploader.widgets import CKEditorUploadingWidget
+from django_ckeditor_5.widgets import CKEditor5Widget
 
 class SectionForm(forms.ModelForm):
     description = forms.CharField(
-        widget=CKEditorUploadingWidget(),
+        widget=CKEditor5Widget(config_name="default"),
         required=False,
         label="Описание"
     )
@@ -14,7 +14,9 @@ class SectionForm(forms.ModelForm):
         fields = ["title", "description"]
 
 class TopicForm(forms.ModelForm):
-    content = forms.CharField(widget=CKEditorUploadingWidget())
+    content = forms.CharField(
+        widget=CKEditor5Widget(config_name="default")
+    )
     class Meta:
         model = Topic
         fields = ["title", "content", "order", "test"]
