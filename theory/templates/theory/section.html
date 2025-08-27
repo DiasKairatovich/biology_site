@@ -41,7 +41,10 @@
                     </div>
                     {% endif %}
 
-                    <p>{{ current_topic.content|safe }}</p>
+                    <div class="theory-content">
+                        {{ current_topic.content|safe }}
+                    </div>
+
 
                     {% if current_topic.test %}
                     <div class="mt-4 text-end">

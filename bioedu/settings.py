@@ -19,7 +19,8 @@ INSTALLED_APPS = [
     'users',
     'tests',
     'theory',
-    "django_ckeditor_5", # для редактирования окна теория
+    "ckeditor",
+    "ckeditor_uploader",
 ]
 
 MIDDLEWARE = [
@@ -89,36 +90,16 @@ STATIC_ROOT = BASE_DIR / "staticfiles"     # сюда collectstatic соберё
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-CKEDITOR_5_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
-CKEDITOR_UPLOAD_PATH = "ckeditor_uploads/"
+CKEDITOR_UPLOAD_PATH = "uploads/"
+CKEDITOR_IMAGE_BACKEND = "pillow"
+CKEDITOR_ALLOW_NONIMAGE_FILES = True
 
-CKEDITOR_5_CONFIGS = {
-    'default': {
-        'toolbar': [
-            'heading', '|',
-            'bold', 'italic', 'underline', 'strikethrough', 'code', '|',
-            'link', 'blockQuote', 'insertTable', 'mediaEmbed', 'codeBlock', '|',
-            'bulletedList', 'numberedList', 'todoList', '|',
-            'outdent', 'indent', '|',
-            'alignment', '|',
-            'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', '|',
-            'highlight', 'horizontalLine', 'specialCharacters', '|',
-            'undo', 'redo', '|',
-            'uploadImage'
-        ],
-        'image': {
-            'toolbar': [
-                'imageTextAlternative', 'imageStyle:full', 'imageStyle:side'
-            ]
-        },
-        'table': {
-            'contentToolbar': [
-                'tableColumn', 'tableRow', 'mergeTableCells'
-            ]
-        },
-        'height': 400,
-        'width': '100%',
-    }
+CKEDITOR_CONFIGS = {
+    "default": {
+        "toolbar": "Full",    # Полный тулбар
+        "height": 400,
+        "width": "85%",
+    },
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

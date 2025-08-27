@@ -14,7 +14,7 @@ urlpatterns += i18n_patterns(
     path('users/', include('users.urls')), # Пользователи
     path('tests/', include('tests.urls')), # Тесты
     path('theory/', include('theory.urls')), # Теория
-    path("ckeditor5/", include("django_ckeditor_5.urls")), # Окно редактирования на подобии Word
+    path("ckeditor/", include("ckeditor_uploader.urls")), # Окно редактирования на подобии Word
 )
 
 # Для статики

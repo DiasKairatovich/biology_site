@@ -30,3 +30,12 @@ input[type="radio"]:checked + label img {
     box-shadow: 0 0 10px rgba(13, 110, 253, 0.6);
     transform: scale(1.05);      /* лёгкое увеличение */
 }
+
+.theory-content img {
+    max-width: 100%;
+    height: auto;
+}
+.theory-content video {
+    max-width: 100%;
+    height: auto;
+}
