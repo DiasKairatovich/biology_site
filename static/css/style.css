@@ -39,3 +39,7 @@ input[type="radio"]:checked + label img {
     max-width: 100%;
     height: auto;
 }
+
+.fw-bold {
+    font-weight: 700; /* жирный */
+}

@@ -1,0 +1,50 @@
+/* Стили для создателя тестов */
+.test-creator {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.question-item {
+    transition: all 0.3s ease;
+}
+
+.question-item:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.question-fields {
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    margin-top: 1rem;
+}
+
+.mcq-fields,
+.mcq-img-fields,
+.tf-fields {
+    display: none;
+}
+
+[data-question-type="MCQ"] .mcq-fields {
+    display: block;
+}
+
+[data-question-type="MCQ_IMG"] .mcq-img-fields {
+    display: block;
+}
+
+[data-question-type="TF"] .tf-fields {
+    display: block;
+}
+
+.invalid-feedback {
+    display: none;
+}
+
+.is-invalid ~ .invalid-feedback {
+    display: block;
+}
+
+#question-counter {
+    font-size: 0.9rem;
+}

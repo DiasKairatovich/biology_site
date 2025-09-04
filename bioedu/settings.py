@@ -84,7 +84,7 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'index'
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'main' / 'static']
+STATICFILES_DIRS = [ BASE_DIR / 'static' ]
 STATIC_ROOT = BASE_DIR / "staticfiles"     # сюда collectstatic соберёт всё
 
 MEDIA_URL = '/media/'
