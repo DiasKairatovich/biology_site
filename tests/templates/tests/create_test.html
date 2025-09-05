@@ -30,7 +30,8 @@
     {% for f in formset %}
       <div class="card mb-3 question-form" style="display: none;">
         <div class="card-body">
-          {{ f.id }}   <!-- вот это скрытое поле обязательно -->
+          {{ f.id }}   <!-- скрытое поле ID обязательно -->
+
           <div class="mb-2">
             <label class="form-label">Текст вопроса</label>
             {{ f.text|add_class:"form-control" }}
@@ -41,7 +42,7 @@
             {{ f.question_type|add_class:"form-select question-type" }}
           </div>
 
-          <!-- MCQ блок -->
+          <!-- MCQ (текстовые варианты) -->
           <div class="mcq-fields">
             <div class="row g-2">
               <div class="col-md-6">
@@ -61,13 +62,9 @@
                 {{ f.option4|add_class:"form-control" }}
               </div>
             </div>
-            <div class="mt-2">
-              <label class="form-label">Номер правильного варианта (1–4)</label>
-              {{ f.correct_option|add_class:"form-control" }}
-            </div>
           </div>
 
-          <!-- MCQ with images -->
+          <!-- MCQ с картинками -->
           <div class="mcq-img-fields">
             <div class="row g-2">
               <div class="col-md-6">
@@ -87,14 +84,16 @@
                 {{ f.image4 }}
               </div>
             </div>
-            <div class="mt-2">
-              <label class="form-label">Номер правильного варианта (1–4)</label>
-              {{ f.correct_option|add_class:"form-control" }}
-            </div>
           </div>
 
-          <!-- TF блок -->
-          <div class="tf-fields">
+          <!-- ОБЩЕЕ поле правильного варианта для MCQ и MCQ_IMG -->
+          <div class="correct-option-block mt-2">
+            <label class="form-label">Номер правильного варианта (1–4)</label>
+            {{ f.correct_option|add_class:"form-control" }}
+          </div>
+
+          <!-- TF -->
+          <div class="tf-fields mt-2">
             <label class="form-label">Правильный ответ</label>
             {{ f.correct_bool }}
             <small class="text-muted">(Отметь если «Верно»)</small>
@@ -115,7 +114,8 @@
   <div id="empty-form" style="display: none;">
     <div class="card mb-3 question-form">
       <div class="card-body">
-        {{ formset.empty_form.id }}   <!-- вот это скрытое поле обязательно -->
+        {{ formset.empty_form.id }}   <!-- скрытое поле ID обязательно -->
+
         <div class="mb-2">
           <label class="form-label">Текст вопроса</label>
           {{ formset.empty_form.text|add_class:"form-control" }}
@@ -146,13 +146,9 @@
               {{ formset.empty_form.option4|add_class:"form-control" }}
             </div>
           </div>
-          <div class="mt-2">
-            <label class="form-label">Номер правильного варианта (1–4)</label>
-            {{ formset.empty_form.correct_option|add_class:"form-control" }}
-          </div>
         </div>
 
-        <!-- MCQ with images -->
+        <!-- MCQ с картинками -->
         <div class="mcq-img-fields">
           <div class="row g-2">
             <div class="col-md-6">
@@ -172,14 +168,16 @@
               {{ formset.empty_form.image4 }}
             </div>
           </div>
-          <div class="mt-2">
-            <label class="form-label">Номер правильного варианта (1–4)</label>
-            {{ formset.empty_form.correct_option|add_class:"form-control" }}
-          </div>
+        </div>
+
+        <!-- ОБЩЕЕ поле правильного варианта для MCQ и MCQ_IMG -->
+        <div class="correct-option-block mt-2">
+          <label class="form-label">Номер правильного варианта (1–4)</label>
+          {{ formset.empty_form.correct_option|add_class:"form-control" }}
         </div>
 
         <!-- TF -->
-        <div class="tf-fields">
+        <div class="tf-fields mt-2">
           <label class="form-label">Правильный ответ</label>
           {{ formset.empty_form.correct_bool }}
           <small class="text-muted">(Отметь если «Верно»)</small>
@@ -226,6 +224,67 @@ document.addEventListener("DOMContentLoaded", function () {
     nextBtn.style.display = (index < questions.length - 1) ? "inline-block" : "none";
   }
 
+  // утилита: массово включать/выключать инпуты внутри контейнера
+  function setDisabledIn(container, disabled) {
+    if (!container) return;
+    container.querySelectorAll("input, select, textarea").forEach(el => {
+      el.disabled = disabled;
+    });
+  }
+
+  // инициализация одной формы вопроса
+  function initQuestionForm(form) {
+    const select = form.querySelector(".question-type");
+    const mcqFields = form.querySelector(".mcq-fields");
+    const mcqImgFields = form.querySelector(".mcq-img-fields");
+    const tfFields = form.querySelector(".tf-fields");
+    const correctBlock = form.querySelector(".correct-option-block");
+
+    function toggleFields() {
+      const t = select.value;
+
+      // показать/скрыть группы
+      mcqFields.style.display     = (t === "MCQ") ? "block" : "none";
+      mcqImgFields.style.display  = (t === "MCQ_IMG") ? "block" : "none";
+      tfFields.style.display      = (t === "TF") ? "block" : "none";
+      // общее поле correct_option только для MCQ и MCQ_IMG
+      correctBlock.style.display  = (t === "MCQ" || t === "MCQ_IMG") ? "block" : "none";
+
+      // выключить инпуты в скрытых блоках, включить в видимых
+      setDisabledIn(mcqFields, t !== "MCQ");
+      setDisabledIn(mcqImgFields, t !== "MCQ_IMG");
+      setDisabledIn(tfFields, t !== "TF");
+
+      // correct_option не нужен для TF
+      setDisabledIn(correctBlock, !(t === "MCQ" || t === "MCQ_IMG"));
+    }
+
+    select.addEventListener("change", toggleFields);
+    toggleFields(); // первичная настройка
+  }
+
+  // инициализировать уже существующие формы
+  questionsWrapper.querySelectorAll(".question-form").forEach(initQuestionForm);
+
+  // добавить новый вопрос
+  document.getElementById("add-question").addEventListener("click", function () {
+    let formCount = parseInt(totalFormsInput.value);
+    let newFormHtml = emptyForm.replace(/__prefix__/g, formCount);
+
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = newFormHtml;
+    const newForm = tempDiv.firstElementChild;
+
+    questionsWrapper.appendChild(newForm);
+    totalFormsInput.value = formCount + 1;
+
+    initQuestionForm(newForm);
+
+    // перейти к новому вопросу
+    currentIndex = formCount;
+    showQuestion(currentIndex);
+  });
+
   // навигация
   prevBtn.addEventListener("click", () => {
     if (currentIndex > 0) {
@@ -242,57 +301,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // логика MCQ/TF
-  function initQuestionForm(form) {
-    const select = form.querySelector(".question-type");
-    const mcqFields = form.querySelector(".mcq-fields");
-    const tfFields = form.querySelector(".tf-fields");
-    const mcqImgFields = form.querySelector(".mcq-img-fields");
-
-    function toggleFields() {
-      if (select.value === "MCQ") {
-        mcqFields.style.display = "block";
-        tfFields.style.display = "none";
-        mcqImgFields.style.display = "none";
-      } else if (select.value === "TF") {
-        mcqFields.style.display = "none";
-        tfFields.style.display = "block";
-        mcqImgFields.style.display = "none";
-      } else if (select.value === "MCQ_IMG") {
-        mcqFields.style.display = "none";
-        tfFields.style.display = "none";
-        mcqImgFields.style.display = "block";
-      }
-    }
-    select.addEventListener("change", toggleFields);
-    toggleFields();
-  }
-
-  // инициализация уже существующих
-  questionsWrapper.querySelectorAll(".question-form").forEach(initQuestionForm);
-
-  // добавить вопрос
-  document.getElementById("add-question").addEventListener("click", function () {
-    let formCount = parseInt(totalFormsInput.value);
-    let newFormHtml = emptyForm.replace(/__prefix__/g, formCount);
-
-    const tempDiv = document.createElement("div");
-    tempDiv.innerHTML = newFormHtml;
-    const newForm = tempDiv.firstElementChild;
-
-    questionsWrapper.appendChild(newForm);
-
-    totalFormsInput.value = formCount + 1;
-
-    initQuestionForm(newForm);
-
-    // перейти к новому вопросу
-    currentIndex = formCount;
-    showQuestion(currentIndex);
-  });
-
   // показать первый вопрос
   showQuestion(currentIndex);
 });
 </script>
 {% endblock %}
+
