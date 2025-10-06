@@ -3,7 +3,7 @@
 {% block content %}
 <h1 class="mb-4">Статистика</h1>
 
-{% if user|has_group:"Учителя" %}
+{% if user.role == "teacher" %}
   <form method="get" class="row g-2 mb-3">
     <div class="col-auto">
       <select name="test" class="form-select">

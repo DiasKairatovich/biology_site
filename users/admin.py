@@ -10,7 +10,7 @@ class CustomUserCreationForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ("username", "email", "first_name", "last_name", "password")
+        fields = ("username", "email", "first_name", "last_name", "role", "bio", "avatar", "password")
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -24,31 +24,50 @@ class CustomUserCreationForm(forms.ModelForm):
 class CustomUserChangeForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ("username", "email", "first_name", "last_name",
-                  "is_active", "is_staff", "is_superuser", "groups")
+        fields = (
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "role",
+            "bio",
+            "avatar",
+            "is_active",
+            "is_staff",
+            "is_superuser",
+            "groups",
+        )
 
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
+    """Кастомная админка пользователя с полями role, bio, avatar"""
+
     add_form = CustomUserCreationForm
     form = CustomUserChangeForm
     model = User
 
-    list_display = ("username", "email", "first_name", "last_name", "is_staff")
-    list_filter = ("is_staff", "is_superuser", "is_active", "groups")
+    list_display = ("username", "email", "first_name", "last_name", "role", "is_staff")
+    list_filter = ("role", "is_staff", "is_superuser", "is_active", "groups")
     search_fields = ("username", "email", "first_name", "last_name")
     ordering = ("username",)
 
+    # Настройка отображаемых групп полей при редактировании
     fieldsets = (
         (None, {"fields": ("username", "email", "first_name", "last_name", "password")}),
-        ("Permissions", {"fields": ("is_active", "is_staff", "is_superuser", "groups", "user_permissions")}),
-        ("Important dates", {"fields": ("last_login", "date_joined")}),
+        ("Профиль", {"fields": ("role", "bio", "avatar")}),
+        ("Права доступа", {"fields": ("is_active", "is_staff", "is_superuser", "groups", "user_permissions")}),
+        ("Важные даты", {"fields": ("last_login", "date_joined")}),
     )
 
+    # Поля при создании нового пользователя
     add_fieldsets = (
         (None, {
             "classes": ("wide",),
-            "fields": ("username", "email", "first_name", "last_name",
-                       "password", "is_active", "is_staff", "groups"),
+            "fields": (
+                "username", "email", "first_name", "last_name",
+                "role", "bio", "avatar", "password",
+                "is_active", "is_staff", "groups"
+            ),
         }),
     )

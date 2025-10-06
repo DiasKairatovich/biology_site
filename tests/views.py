@@ -5,9 +5,8 @@ from django.db.models import Count, Avg
 from .models import Test, Question, Result
 from .forms import TestForm, QuestionFormSet, save_test_with_questions
 
-# проверка на роль "учитель"
 def is_teacher(user):
-    return user.is_authenticated and getattr(user, "role", "") == "teacher"
+    return user.is_authenticated and user.role == "teacher"
 
 
 # --- Вкладка "Практика" (список тестов для всех пользователей) ---
@@ -19,6 +18,7 @@ def test_list(request):
 
 # --- Мои тесты (только учителя) ---
 @login_required
+@user_passes_test(is_teacher)
 def manage_tests(request):
     tests = (
         Test.objects.filter(author=request.user)
@@ -29,6 +29,7 @@ def manage_tests(request):
 
 # --- Создание теста (только учителя) ---
 @login_required
+@user_passes_test(is_teacher)
 def create_test(request):
     if request.method == "POST":
         test_form = TestForm(request.POST, request.FILES)
@@ -47,7 +48,9 @@ def create_test(request):
         "formset": formset,
     })
 
+# --- Редактирование теста (только автор / учитель) ---
 @login_required
+@user_passes_test(is_teacher)
 def edit_test(request, test_id):
     test = get_object_or_404(Test, pk=test_id, author=request.user)
 
@@ -68,8 +71,9 @@ def edit_test(request, test_id):
         "formset": formset,
     })
 
-
+# --- Удаление теста (только автор / учитель) ---
 @login_required
+@user_passes_test(is_teacher)
 def delete_test(request, test_id):
     test = get_object_or_404(Test, pk=test_id, author=request.user)
 
@@ -82,6 +86,7 @@ def delete_test(request, test_id):
     return render(request, "tests/confirm_delete_test.html", {"test": test})
 
 
+# --- Прохождение теста (доступно всем авторизованным) ---
 @login_required
 def take_test(request, test_id):
     test = get_object_or_404(Test, pk=test_id)
@@ -142,6 +147,40 @@ def take_test(request, test_id):
         {"test": test, "questions": prepared_questions},
     )
 
+# --- Статистика: разная для учителя и ученика ---
+@login_required
+def statistics(request):
+    if is_teacher(request.user):
+        # Результаты по тестам, созданным учителем
+        tests_qs = Test.objects.filter(author=request.user)
+        test_id = request.GET.get("test")
+        results = Result.objects.filter(test__in=tests_qs).select_related("user", "test").order_by("-date_taken")
+        if test_id:
+            results = results.filter(test_id=test_id)
+
+        # простая агрегированная сводка по выбранному тесту (если выбран)
+        summary = None
+        if test_id:
+            agg = results.aggregate(avg=Avg("score"), total=Count("id"))
+            summary = {
+                "avg_score": round(agg["avg"] or 0, 2),
+                "attempts": agg["total"] or 0
+            }
+
+        return render(request, "tests/statistics.html", {
+            "mode": "teacher",
+            "tests": tests_qs,
+            "results": results,
+            "summary": summary,
+            "selected_test_id": int(test_id) if test_id else None
+        })
+    else:
+        # Студент видит только свои результаты
+        results = Result.objects.filter(user=request.user).select_related("test").order_by("-date_taken")
+        return render(request, "tests/statistics.html", {
+            "mode": "student",
+            "results": results
+        })
 
 @login_required
 def submit_test(request, test_id):
@@ -184,37 +223,3 @@ def submit_test(request, test_id):
         "percent": round(percent * 100, 2),
         "attempt": attempt,
     })
-
-@login_required
-def statistics(request):
-    if request.user.groups.filter(name="Учителя").exists():
-        # Результаты по тестам, созданным учителем
-        tests_qs = Test.objects.filter(author=request.user)
-        test_id = request.GET.get("test")
-        results = Result.objects.filter(test__in=tests_qs).select_related("user", "test").order_by("-date_taken")
-        if test_id:
-            results = results.filter(test_id=test_id)
-
-        # простая агрегированная сводка по выбранному тесту (если выбран)
-        summary = None
-        if test_id:
-            agg = results.aggregate(avg=Avg("score"), total=Count("id"))
-            summary = {
-                "avg_score": round(agg["avg"] or 0, 2),
-                "attempts": agg["total"] or 0
-            }
-
-        return render(request, "tests/statistics.html", {
-            "mode": "teacher",
-            "tests": tests_qs,
-            "results": results,
-            "summary": summary,
-            "selected_test_id": int(test_id) if test_id else None
-        })
-    else:
-        # Студент видит только свои результаты
-        results = Result.objects.filter(user=request.user).select_related("test").order_by("-date_taken")
-        return render(request, "tests/statistics.html", {
-            "mode": "student",
-            "results": results
-        })

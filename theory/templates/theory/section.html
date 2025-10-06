@@ -16,7 +16,7 @@
         </div>
 
         <!-- Кнопка "Добавить тему" -->
-        {% if user.is_authenticated and user|has_group:"Учителя" %}
+        {% if user.is_authenticated and user.role == "teacher" %}
         <div class="mt-3 text-center">
             <a href="{% url 'create_topic' section.id %}" class="btn btn-outline-primary w-100">
                 + {% trans "Добавить тему" %}
@@ -33,7 +33,7 @@
                     <h3>{{ current_topic.title }}</h3>
 
                     <!-- Кнопка "Редактировать тему" -->
-                    {% if user.is_authenticated and user|has_group:"Учителя" %}
+                    {% if user.is_authenticated and user.role == "teacher" %}
                     <div class="text-end mb-3">
                         <a href="{% url 'edit_topic' current_topic.id %}" class="btn btn-sm btn-warning">
                             ✏ {% trans "Редактировать" %}
@@ -60,7 +60,7 @@
                 {% else %}
                     <p class="text-muted">В этом разделе пока нет тем.</p>
 
-                    {% if user.is_authenticated and user|has_group:"Учителя" %}
+                    {% if user.is_authenticated and user.role == "teacher" %}
                     <div class="mt-3">
                         <a href="{% url 'create_topic' section.id %}" class="btn btn-outline-primary">
                             + Добавить первую тему
