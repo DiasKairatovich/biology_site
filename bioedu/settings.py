@@ -20,7 +20,8 @@ INSTALLED_APPS = [
     'tests',
     'theory',
     "ckeditor",
-    "ckeditor_uploader",
+    "ckeditor_uploader", # для Онлайн редактора
+    "rest_framework", # для DRF
 ]
 
 MIDDLEWARE = [
@@ -105,6 +106,18 @@ CKEDITOR_CONFIGS = {
         "width": "85%",
     },
 }
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ],
+}
+
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

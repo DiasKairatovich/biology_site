@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.db.models import Count, Avg
 from .models import Test, Question, Result
 from .forms import TestForm, QuestionFormSet, save_test_with_questions
+from django.core.paginator import Paginator
 
 def is_teacher(user):
     return user.is_authenticated and user.role == "teacher"
@@ -12,8 +13,16 @@ def is_teacher(user):
 # --- Вкладка "Практика" (список тестов для всех пользователей) ---
 @login_required
 def test_list(request):
-    tests = Test.objects.all().annotate(q_count=Count("questions"))
-    return render(request, "tests/test_list.html", {"tests": tests})
+    tests = Test.objects.all().annotate(q_count=Count("questions")).order_by("id")
+
+    paginator = Paginator(tests, 10)  # 10 тестов на страницу
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "tests/test_list.html", {
+        "page_obj": page_obj,
+        "tests": page_obj.object_list,
+    })
 
 
 # --- Мои тесты (только учителя) ---

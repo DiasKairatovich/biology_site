@@ -10,11 +10,14 @@ urlpatterns = [
 
 urlpatterns += i18n_patterns(
     path('admin/', admin.site.urls),
-    path('', include('main.urls')), # Главная страница и прочее
-    path('users/', include('users.urls')), # Пользователи
-    path('tests/', include('tests.urls')), # Тесты
-    path('theory/', include('theory.urls')), # Теория
-    path("ckeditor/", include("ckeditor_uploader.urls")), # Окно редактирования на подобии Word
+    path('', include('main.urls')), # главная страница и прочее
+    path('users/', include('users.urls')), # пользователи
+    path('tests/', include('tests.urls')), # тесты
+    path('theory/', include('theory.urls')), # теория
+    path("ckeditor/", include("ckeditor_uploader.urls")), # окно редактора
+
+    # Новый API
+    path('api/', include('tests.api.urls')),
 )
 
 # Для статики
