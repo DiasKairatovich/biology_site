@@ -30,32 +30,32 @@ class QuestionForm(forms.ModelForm):
             "correct_option": forms.NumberInput(
                 attrs={"class": "form-control", "min": 1, "max": 4}
             ),
-            "correct_bool": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "correct_bool": forms.RadioSelect(choices=[(True, "True"), (False, "False")])
         }
 
     def clean(self):
         cleaned_data = super().clean()
         q_type = cleaned_data.get("question_type")
 
-        # Пропускаем валидацию для пустых форм
-        if (not self.instance.pk and
-                not any(cleaned_data.get(field) for field in ['text', 'option1', 'image1']) and
-                not cleaned_data.get('DELETE')):
+        # 1. Пропуск пустых форм (для inline formset)
+        if not any(
+                cleaned_data.get(field)
+                for field in ["text", "option1", "image1", "option2", "option3", "option4"]
+        ):
             return cleaned_data
 
         option_fields = ["option1", "option2", "option3", "option4"]
         image_fields = ["image1", "image2", "image3", "image4"]
 
+        # 2. Проверки по типам вопросов
         if q_type == "MCQ":
-            # обнуляем ненужные
             cleaned_data["correct_bool"] = None
             for f in image_fields:
                 cleaned_data[f] = None
 
             value = cleaned_data.get("correct_option")
-            if value is None or value == "":
+            if value in [None, ""]:
                 raise forms.ValidationError("Для MCQ необходимо указать правильный вариант ответа.")
-
             try:
                 int_value = int(value)
                 if not (1 <= int_value <= 4):
@@ -64,15 +64,13 @@ class QuestionForm(forms.ModelForm):
                 raise forms.ValidationError("Правильный вариант должен быть числом от 1 до 4.")
 
         elif q_type == "MCQ_IMG":
-            # обнуляем текстовые варианты
             for f in option_fields:
                 cleaned_data[f] = ""
             cleaned_data["correct_bool"] = None
 
             value = cleaned_data.get("correct_option")
-            if value is None or value == "":
+            if value in [None, ""]:
                 raise forms.ValidationError("Для MCQ с картинками нужно указать правильный вариант.")
-
             try:
                 int_value = int(value)
                 if not (1 <= int_value <= 4):
@@ -80,17 +78,16 @@ class QuestionForm(forms.ModelForm):
             except (ValueError, TypeError):
                 raise forms.ValidationError("Правильный вариант должен быть числом от 1 до 4.")
 
-            if not any([cleaned_data.get(f) for f in image_fields]):
+            if not any(cleaned_data.get(f) for f in image_fields):
                 raise forms.ValidationError("Добавьте хотя бы одну картинку.")
 
         elif q_type == "TF":
-            # обнуляем варианты и картинки
+            # очищаем всё лишнее
             cleaned_data["correct_option"] = None
-            for f in image_fields:
-                cleaned_data[f] = None
-            for f in option_fields:
-                cleaned_data[f] = ""
+            for f in image_fields + option_fields:
+                cleaned_data[f] = None if "image" in f else ""
 
+            # ⚠️ исправление: False — это допустимый ответ, а None — нет
             if cleaned_data.get("correct_bool") is None:
                 raise forms.ValidationError("Для True/False нужно выбрать правильный ответ.")
 
