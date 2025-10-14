@@ -4,7 +4,19 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
-from .forms import ProfileUpdateForm
+from .forms import ProfileUpdateForm, RegisterForm
+
+def register_view(request):
+    if request.method == "POST":
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)  # автоматический вход после регистрации
+            messages.success(request, "Регистрация прошла успешно! Добро пожаловать!")
+            return redirect("index")  # замени 'home' на свою домашнюю страницу
+    else:
+        form = RegisterForm()
+    return render(request, "users/register.html", {"form": form})
 
 def login_view(request):
     if request.user.is_authenticated:

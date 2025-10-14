@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load form_tags %}
+
+{% block content %}
+
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+  <div class="card shadow-lg border-0" style="width: 400px;">
+    <div class="card-body">
+      <h4 class="card-title text-center mb-4">Регистрация</h4>
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        {% if form.errors %}
+          <div class="alert alert-danger">
+            {% for field, errors in form.errors.items %}
+              {% for error in errors %}
+                <div>{{ error }}</div>
+              {% endfor %}
+            {% endfor %}
+            {% if form.non_field_errors %}
+              {% for error in form.non_field_errors %}
+                <div>{{ error }}</div>
+              {% endfor %}
+            {% endif %}
+          </div>
+        {% endif %}
+
+        <!-- Username -->
+        <div class="mb-3">
+          <label for="id_username" class="form-label">Логин</label>
+          {{ form.username|add_class:"form-control" }}
+        </div>
+
+        <!-- Email -->
+        <div class="mb-3">
+          <label for="id_email" class="form-label">Email</label>
+          {{ form.email|add_class:"form-control" }}
+        </div>
+
+        <!-- First name -->
+        <div class="mb-3">
+          <label for="id_first_name" class="form-label">Имя</label>
+          {{ form.first_name|add_class:"form-control" }}
+        </div>
+
+        <!-- Last name -->
+        <div class="mb-3">
+          <label for="id_last_name" class="form-label">Фамилия</label>
+          {{ form.last_name|add_class:"form-control" }}
+        </div>
+
+        <!-- Password 1 -->
+        <div class="mb-3 position-relative">
+          <label for="id_password1" class="form-label">Пароль</label>
+          {{ form.password1|add_class:"form-control" }}
+        </div>
+
+        <!-- Password 2 -->
+        <div class="mb-3 position-relative">
+          <label for="id_password2" class="form-label">Подтверждение пароля</label>
+          {{ form.password2|add_class:"form-control" }}
+        </div>
+
+        <button type="submit" class="btn btn-success w-100">Создать аккаунт</button>
+      </form>
+
+      <div class="text-center mt-3">
+        <small class="text-muted">
+          Уже есть аккаунт?
+          <a href="{% url 'login' %}" class="text-success fw-bold text-decoration-none">
+            Войти
+          </a>
+        </small>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

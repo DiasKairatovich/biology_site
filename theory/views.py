@@ -138,3 +138,15 @@ def topic_detail(request, topic_id):
         "topics": topics,
         "current_topic": current_topic,
     })
+
+@login_required
+def topic_detail_slug(request, slug):
+    current_topic = get_object_or_404(Topic, slug=slug)
+    section = current_topic.section
+    topics = section.topics.all()
+
+    return render(request, "theory/section.html", {
+        "section": section,
+        "topics": topics,
+        "current_topic": current_topic,
+    })
