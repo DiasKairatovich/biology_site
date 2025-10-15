@@ -21,14 +21,22 @@ class ProfileUpdateForm(forms.ModelForm):
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(required=True, label="Email")
+    role = forms.ChoiceField(
+        choices=User.ROLE_CHOICES,
+        label="Роль",
+        required=False,  # если не выбрали, будет default='student'
+    )
 
     class Meta:
         model = User
-        fields = ["username", "email", "first_name", "last_name", "password1", "password2"]
+        fields = ["username", "email", "first_name", "last_name", "password1", "password2", "role"]
 
     def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.cleaned_data["email"]
+        role = self.cleaned_data.get("role")
+        if role:
+            user.role = role
         if commit:
             user.save()
         return user

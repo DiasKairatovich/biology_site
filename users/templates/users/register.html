@@ -63,6 +63,12 @@
           {{ form.password2|add_class:"form-control" }}
         </div>
 
+        <!-- Role -->
+        <div class="mb-3">
+          <label for="id_role" class="form-label">Роль</label>
+          {{ form.role|add_class:"form-select" }}
+        </div>
+
         <button type="submit" class="btn btn-success w-100">Создать аккаунт</button>
       </form>
 
