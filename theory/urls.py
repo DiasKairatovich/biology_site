@@ -13,6 +13,7 @@ urlpatterns = [
     path("section/<int:section_id>/", views.section_detail, name="section_detail"),  # конкретный раздел
     path("section/<int:section_id>/add-topic/", views.create_topic, name="create_topic"),   # создать тему
     path("topic/<int:topic_id>/edit/", views.edit_topic, name="edit_topic"),   # редактировать тему
+    path("topic/<int:topic_id>/delete/", views.delete_topic, name="delete_topic"), # удалить тему
     path("topic/<int:topic_id>/", views.topic_detail, name="topic"),   # конкретная тема
 
     # --- URL с regex для slug ---

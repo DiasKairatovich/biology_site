@@ -35,9 +35,8 @@
                     <!-- Кнопка "Редактировать тему" -->
                     {% if user.is_authenticated and user.role == "teacher" %}
                     <div class="text-end mb-3">
-                        <a href="{% url 'edit_topic' current_topic.id %}" class="btn btn-sm btn-warning">
-                            ✏ {% trans "Редактировать" %}
-                        </a>
+                        <a href="{% url 'edit_topic' current_topic.id %}" class="btn btn-sm btn-warning"> {% trans "Редактировать" %} </a>
+                        <a href="{% url 'delete_topic' current_topic.id %}" class="btn btn-danger btn-sm"> {% trans "Удалить" %} </a>
                     </div>
                     {% endif %}
 

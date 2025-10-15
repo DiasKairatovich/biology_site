@@ -128,6 +128,22 @@ def edit_topic(request, topic_id):
     return render(request, "theory/topic_form.html", {"form": form, "section": topic.section})
 
 @login_required
+def delete_topic(request, topic_id):
+    topic = get_object_or_404(Topic, id=topic_id)
+
+    if not is_teacher(request.user):
+        messages.error(request, "Только учителя могут удалять темы.")
+        return redirect("topic", topic_id=topic.id)
+
+    if request.method == "POST":
+        section_id = topic.section.id
+        topic.delete()
+        messages.success(request, "Тема удалена!")
+        return redirect("section_detail", section_id=section_id)
+
+    return render(request, "theory/confirm_delete_topic.html", {"topic": topic})
+
+@login_required
 def topic_detail(request, topic_id):
     current_topic = get_object_or_404(Topic, id=topic_id)
     section = current_topic.section
