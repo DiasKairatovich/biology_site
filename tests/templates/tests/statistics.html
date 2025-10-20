@@ -1,84 +1,82 @@
 {% extends 'base.html' %}
-{% load group_tags %}   {# не забудь загрузить свои теги #}
+{% load group_tags %}
+{% load i18n %}
+
 {% block content %}
-<h1 class="mb-4">Статистика</h1>
+
+<div class="mb-4 text-center">
+  <h2 class="fw-bold text-success">{% trans "Статистика" %}</h2>
+  <p class="text-muted">{% trans "Просматривайте результаты тестов и анализируйте успеваемость." %}</p>
+</div>
 
 {% if user.role == "teacher" %}
   <form method="get" class="row g-2 mb-3">
     <div class="col-auto">
       <select name="test" class="form-select">
-        <option value="">Все тесты</option>
+        <option value="">{% trans "Все тесты" %}</option>
         {% for t in tests %}
           <option value="{{ t.id }}" {% if selected_test_id == t.id %}selected{% endif %}>{{ t.title }}</option>
         {% endfor %}
       </select>
     </div>
     <div class="col-auto">
-      <button class="btn btn-success">Фильтровать</button>
+      <button class="btn btn-success">{% trans "Фильтровать" %}</button>
     </div>
   </form>
 
   {% if summary %}
     <div class="alert alert-success mb-3">
-      Средний балл: {{ summary.avg_score }} | Кол-во попыток: {{ summary.attempts }}
+      <strong>{% trans "Средний балл:" %}</strong> {{ summary.avg_score }} |
+      <strong>{% trans "Количество попыток:" %}</strong> {{ summary.attempts }}
     </div>
   {% endif %}
-
-  <table class="table table-striped align-middle">
-    <thead>
-      <tr>
-        <th>Дата</th>
-        <th>Тест</th>
-        <th>Сдал</th>
-        <th>Попытка</th>
-        <th>Баллы</th>
-        <th>%</th>
-        <th>Пройден</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for r in results %}
-      <tr>
-        <td>{{ r.date_taken|date:"d.m.Y H:i" }}</td>
-        <td>{{ r.test.title }}</td>
-        <td>{{ r.user.username }}</td>
-        <td>{{ r.attempt }}</td>
-        <td>{{ r.score }}/{{ r.total }}</td>
-        <td>{{ r.percentage }}</td>
-        <td>{% if r.passed %}Да{% else %}Нет{% endif %}</td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="7">Нет данных</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
-{% else %}
-  <table class="table table-striped align-middle">
-    <thead>
-      <tr>
-        <th>Дата</th>
-        <th>Тест</th>
-        <th>Попытка</th>
-        <th>Баллы</th>
-        <th>%</th>
-        <th>Пройден</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for r in results %}
-      <tr>
-        <td>{{ r.date_taken|date:"d.m.Y H:i" }}</td>
-        <td>{{ r.test.title }}</td>
-        <td>{{ r.attempt }}</td>
-        <td>{{ r.score }}/{{ r.total }}</td>
-        <td>{{ r.percentage }}</td>
-        <td>{% if r.passed %}Да{% else %}Нет{% endif %}</td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="6">Пока нет результатов</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
 {% endif %}
+
+<div class="card card-unified shadow-sm">
+  <div class="card-body p-0">
+    <table class="table table-green mb-0 align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>{% trans "Дата" %}</th>
+          <th>{% trans "Тест" %}</th>
+          {% if user.role == "teacher" %}
+            <th>{% trans "Сдал" %}</th>
+          {% endif %}
+          <th>{% trans "Попытка" %}</th>
+          <th>{% trans "Баллы" %}</th>
+          <th>%</th>
+          <th>{% trans "Пройден" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in results %}
+          <tr>
+            <td>{{ r.date_taken|date:"d.m.Y H:i" }}</td>
+            <td class="fw-semibold text-success">{{ r.test.title }}</td>
+            {% if user.role == "teacher" %}
+              <td>{{ r.user.username }}</td>
+            {% endif %}
+            <td>{{ r.attempt }}</td>
+            <td>{{ r.score }}/{{ r.total }}</td>
+            <td>{{ r.percentage }}</td>
+            <td>
+              {% if r.passed %}
+                <span class="badge bg-success">{% trans "Да" %}</span>
+              {% else %}
+                <span class="badge bg-danger">{% trans "Нет" %}</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="{% if user.role == 'teacher' %}7{% else %}6{% endif %}" class="text-center text-muted">
+              {% trans "Нет данных" %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
 {% endblock %}

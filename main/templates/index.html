@@ -2,20 +2,26 @@
 {% load i18n %}
 
 {% block content %}
-<h1 class="mb-4">{% trans "Добро пожаловать!" %}</h1>
-<p class="lead">{% trans "Выберите раздел для изучения:" %}</p>
+<div class="text-center mb-5">
+  <h1 class="fw-bold text-success">{% trans "Добро пожаловать в BioEdu!" %}</h1>
+  <p class="lead text-muted">{% trans "Выберите раздел и начните изучение биологии в интерактивной форме." %}</p>
+</div>
 
-<div class="row">
-    {% for section in sections %}
-    <div class="col-md-4 mb-4">
-        <div class="card shadow-sm h-100 border-0" style="background-color: #E9F7EF;">
-            <div class="card-body d-flex flex-column justify-content-between">
-                <h5 class="card-title">{{ section.title }}</h5>
-                <p class="card-text text-muted">{{ section.description|truncatechars:100 }}</p>
-                <a href="{% url 'section_detail' section.id %}" class="btn btn-success mt-3">{% trans "Открыть" %}</a>
-            </div>
-        </div>
+<div class="row g-4">
+  {% for section in sections %}
+  <div class="col-md-4">
+    <div class="card card-unified h-100">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title fw-semibold text-success">{{ section.title }}</h5>
+        <p class="card-text text-muted flex-grow-1">{{ section.description|truncatechars:120 }}</p>
+        <a href="{% url 'section_detail' section.id %}" class="btn btn-success mt-auto w-100">{% trans "Открыть" %}</a>
+      </div>
     </div>
-    {% endfor %}
+  </div>
+  {% empty %}
+  <div class="col-12 text-center text-muted">
+    {% trans "Пока нет доступных разделов." %}
+  </div>
+  {% endfor %}
 </div>
 {% endblock %}

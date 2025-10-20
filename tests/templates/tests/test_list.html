@@ -3,7 +3,7 @@
 {% load i18n %}
 
 {% block content %}
-<h1 class="mb-4">{% trans "Тестирование" %}</h1>
+<h2 class="fw-bold text-success">{% trans "Тестирование" %}</h2>
 
 <!-- Кнопки только для учителей -->
 {% if user.is_authenticated and user.role == "teacher" %}
@@ -16,7 +16,7 @@
 <div class="row g-3">
   {% for t in tests %}
   <div class="col-md-6 col-lg-4">
-    <div class="card h-100">
+    <div class="card card-unified h-100">
       <div class="card-body">
         <h5 class="card-title">{{ t.title }}</h5>
         <p class="card-text small text-muted">{{ t.description|default:"" }}</p>
