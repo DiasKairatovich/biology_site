@@ -159,41 +159,6 @@ def take_test(request, test_id):
         {"test": test, "questions": prepared_questions},
     )
 
-# --- Статистика: разная для учителя и ученика ---
-@login_required
-def statistics(request):
-    if is_teacher(request.user):
-        # Результаты по тестам, созданным учителем
-        tests_qs = Test.objects.filter(author=request.user)
-        test_id = request.GET.get("test")
-        results = Result.objects.filter(test__in=tests_qs).select_related("user", "test").order_by("-date_taken")
-        if test_id:
-            results = results.filter(test_id=test_id)
-
-        # простая агрегированная сводка по выбранному тесту (если выбран)
-        summary = None
-        if test_id:
-            agg = results.aggregate(avg=Avg("score"), total=Count("id"))
-            summary = {
-                "avg_score": round(agg["avg"] or 0, 2),
-                "attempts": agg["total"] or 0
-            }
-
-        return render(request, "tests/statistics.html", {
-            "mode": "teacher",
-            "tests": tests_qs,
-            "results": results,
-            "summary": summary,
-            "selected_test_id": int(test_id) if test_id else None
-        })
-    else:
-        # Студент видит только свои результаты
-        results = Result.objects.filter(user=request.user).select_related("test").order_by("-date_taken")
-        return render(request, "tests/statistics.html", {
-            "mode": "student",
-            "results": results
-        })
-
 @login_required
 def submit_test(request, test_id):
     test = get_object_or_404(Test, pk=test_id)
@@ -235,6 +200,51 @@ def submit_test(request, test_id):
         "percent": round(percent * 100, 2),
         "attempt": attempt,
     })
+
+
+# --- Статистика: разная для учителя и ученика ---
+@login_required
+def statistics(request):
+    if is_teacher(request.user):
+        tests_qs = Test.objects.filter(author=request.user)
+        test_id = request.GET.get("test")
+
+        # Если test_id пустое или 'None' → убираем фильтр
+        if not test_id or test_id == "None":
+            selected_test_id = None
+            results = Result.objects.filter(test__in=tests_qs)
+        else:
+            selected_test_id = int(test_id)
+            results = Result.objects.filter(test_id=selected_test_id, test__in=tests_qs)
+
+        results = results.select_related("user", "test").order_by("-date_taken")
+
+        # Агрегаты
+        summary = None
+        if results.exists():
+            agg = results.aggregate(avg=Avg("score"), total=Count("id"))
+            summary = {
+                "avg_score": round(agg["avg"] or 0, 2),
+                "attempts": agg["total"] or 0
+            }
+
+        context = {
+            "mode": "teacher",
+            "tests": tests_qs,
+            "results": results,
+            "summary": summary,
+            "selected_test_id": selected_test_id,
+        }
+        return render(request, "tests/statistics.html", context)
+
+    else:
+        # Для студента — только его результаты
+        results = Result.objects.filter(user=request.user).select_related("test").order_by("-date_taken")
+        return render(request, "tests/statistics.html", {
+            "mode": "student",
+            "results": results
+        })
+
 
 @login_required
 def export_statistics(request):
