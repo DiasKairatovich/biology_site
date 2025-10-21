@@ -79,4 +79,21 @@
   </div>
 </div>
 
+{% if user.role == "teacher" %}
+  <form method="get" action="{% url 'export_statistics' %}" class="row g-2 mb-4 mt-2">
+    <input type="hidden" name="test" value="{{ selected_test_id }}">
+    <div class="col-auto">
+      <select name="format" class="form-select">
+        <option value="excel">Excel (.xlsx)</option>
+        <option value="pdf">PDF</option>
+      </select>
+    </div>
+    <div class="col-auto">
+      <button class="btn btn-outline-success">
+        {% trans "Скачать результаты" %}
+      </button>
+    </div>
+  </form>
+{% endif %}
+
 {% endblock %}

@@ -2,9 +2,12 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.db.models import Count, Avg
-from .models import Test, Question, Result
+from .models import Test, Result
 from .forms import TestForm, QuestionFormSet, save_test_with_questions
 from django.core.paginator import Paginator
+from django.http import HttpResponse
+from openpyxl import Workbook
+from django.utils import timezone
 
 def is_teacher(user):
     return user.is_authenticated and user.role == "teacher"
@@ -232,3 +235,133 @@ def submit_test(request, test_id):
         "percent": round(percent * 100, 2),
         "attempt": attempt,
     })
+
+@login_required
+def export_statistics(request):
+    import os
+    from django.conf import settings
+    from openpyxl import Workbook
+    from django.http import HttpResponse
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import A4, landscape
+    from reportlab.lib.units import cm
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+
+    format_type = request.GET.get("format", "excel")
+    test_id = request.GET.get("test")
+
+    # --- Логика фильтрации ---
+    if not test_id or test_id == "None":
+        # Все результаты по тестам этого учителя
+        results = Result.objects.filter(test__author=request.user).select_related("test", "user")
+    else:
+        # Только выбранный тест, проверяем, что он принадлежит этому учителю
+        test = get_object_or_404(Test, pk=test_id, author=request.user)
+        results = Result.objects.filter(test=test).select_related("test", "user")
+
+    # === Excel экспорт ===
+    if format_type == "excel":
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Статистика"
+
+        headers = ["Дата", "Тест", "Пользователь", "Группа", "Попытка", "Баллы", "%", "Пройден"]
+        ws.append(headers)
+
+        for r in results:
+            ws.append([
+                timezone.localtime(r.date_taken).strftime("%d.%m.%Y %H:%M"),
+                r.test.title,
+                r.user.username,
+                r.group or "-",
+                r.attempt,
+                f"{r.score}/{r.total}",
+                r.percentage,
+                "Да" if r.passed else "Нет"
+            ])
+
+        response = HttpResponse(
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        response['Content-Disposition'] = 'attachment; filename="statistics.xlsx"'
+        wb.save(response)
+        return response
+
+    # === PDF экспорт ===
+    elif format_type == "pdf":
+        response = HttpResponse(content_type="application/pdf")
+        response['Content-Disposition'] = 'attachment; filename="statistics.pdf"'
+
+        # --- Подключаем локальный шрифт DejaVuSans ---
+        font_path = os.path.join(settings.BASE_DIR, "static", "fonts", "DejaVuSans", "DejaVuSans.ttf")
+        if os.path.exists(font_path):
+            pdfmetrics.registerFont(TTFont("DejaVuSans", font_path))
+            font_name = "DejaVuSans"
+        else:
+            font_name = "Helvetica"  # fallback
+
+        # --- Создаем PDF документ ---
+        doc = SimpleDocTemplate(
+            response,
+            pagesize=landscape(A4),
+            rightMargin=1 * cm, leftMargin=1 * cm,
+            topMargin=1 * cm, bottomMargin=1 * cm
+        )
+
+        styles = getSampleStyleSheet()
+        styles.add(ParagraphStyle(
+            name="RussianTitle",
+            parent=styles["Title"],
+            fontName=font_name,
+            fontSize=16,
+            alignment=1,  # центр
+            spaceAfter=14
+        ))
+
+        elements = []
+
+        # Заголовок
+        elements.append(Paragraph("Статистика тестов", styles["RussianTitle"]))
+        elements.append(Spacer(1, 12))
+
+        # Данные таблицы
+        data = [["Дата", "Тест", "Пользователь", "Группа", "Попытка", "Баллы", "%", "Пройден"]]
+
+        for r in results:
+            data.append([
+                timezone.localtime(r.date_taken).strftime("%d.%m.%Y %H:%M"),
+                r.test.title,
+                r.user.username,
+                r.group or "-",
+                r.attempt,
+                f"{r.score}/{r.total}",
+                f"{r.percentage}%",
+                "Да" if r.passed else "Нет"
+            ])
+
+        # Таблица
+        table = Table(
+            data,
+            colWidths=[3 * cm, 5 * cm, 3 * cm, 2 * cm, 2 * cm, 2 * cm, 2 * cm, 2 * cm]
+        )
+        table.setStyle(TableStyle([
+            ('FONTNAME', (0, 0), (-1, -1), font_name),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgreen),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('GRID', (0, 0), (-1, -1), 0.25, colors.grey),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.whitesmoke, colors.lightgrey]),
+        ]))
+
+        elements.append(table)
+        doc.build(elements)
+
+        return response
+
+    # === fallback ===
+    return HttpResponse("Unsupported format", status=400)
