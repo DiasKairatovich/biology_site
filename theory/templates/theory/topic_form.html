@@ -1,17 +1,26 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
+<div class="container-fluid px-4 py-3">
   <div class="row justify-content-center">
-    <div class="col-md-10 col-lg-10">   <!-- ширина формы -->
-      <h3>{% if form.instance.pk %} Редактировать тему {% else %} Добавить тему {% endif %}</h3>
+    <div class="col-12 col-lg-10">   <!-- адаптивная ширина: на мобильных вся, на десктопах чуть уже -->
+      <h3 class="mb-4">
+        {% if form.instance.pk %}
+          Редактировать тему
+        {% else %}
+          Добавить тему
+        {% endif %}
+      </h3>
 
-      <form method="post" enctype="multipart/form-data">
+      <form method="post" enctype="multipart/form-data" class="mb-4">
         {% csrf_token %}
         {{ form.media }}
         {{ form.as_p }}
-        <button type="submit" class="btn btn-success">Сохранить</button>
-        <a href="{% url 'section_detail' section.id %}" class="btn btn-secondary">Отмена</a>
+
+        <div class="mt-3">
+          <button type="submit" class="btn btn-success">Сохранить</button>
+          <a href="{% url 'section_detail' section.id %}" class="btn btn-secondary ms-2">Отмена</a>
+        </div>
       </form>
     </div>
   </div>
@@ -20,4 +29,18 @@
 
 {% block extra_scripts %}
   {{ form.media }}
+  <style>
+    /* Растянуть CKEditor на всю ширину родительского блока */
+    .cke_chrome {
+      width: 100% !important;
+      max-width: none !important;
+    }
+
+    /* Для дополнительной гибкости */
+    textarea.ckeditor {
+      min-height: 400px;
+      width: 100% !important;
+    }
+  </style>
 {% endblock %}
+
