@@ -30,8 +30,18 @@ class Topic(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            # slugify превращает "Тест по анатомии" → "test-po-anatomii"
-            self.slug = slugify(self.title)
+            # Поддержка русских символов и автогенерация уникального slug
+            base_slug = slugify(self.title, allow_unicode=True)
+            if not base_slug:
+                base_slug = "topic"  # fallback если title пустой или невалидный
+
+            slug = base_slug
+            counter = 1
+            while Topic.objects.filter(slug=slug).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
+
         super().save(*args, **kwargs)
 
     def __str__(self):
