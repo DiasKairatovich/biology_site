@@ -26,6 +26,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',  # для переключателя языка
     'django.middleware.common.CommonMiddleware',
@@ -83,6 +84,7 @@ LOCALE_PATHS = [
 
 TIME_ZONE = 'Asia/Almaty'
 USE_I18N = True
+USE_L10N = True
 USE_TZ = True
 
 LOGIN_URL = 'login'
@@ -126,4 +128,6 @@ SIMPLE_JWT = {
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 

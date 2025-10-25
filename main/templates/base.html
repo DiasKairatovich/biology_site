@@ -1,84 +1,85 @@
 {% load static %}
+{% load i18n %}
 {% load group_tags %}
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="{{ LANGUAGE_CODE }}">
 <head>
   <meta charset="UTF-8">
-  <title>BioEdu — интерактивная биология</title>
+  <title>{% trans "BioEdu — интерактивная биология" %}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 </head>
 <body>
-    <div class="page-wrapper d-flex flex-column min-vh-100">
-        <!-- Navbar -->
-        <nav class="navbar navbar-expand-lg sticky-top" style="background-color: #A8E6A1;">
-          <div class="container">
-            <a class="navbar-brand fw-bold text-success" href="{% url 'index' %}">
-              <img src="{% static 'img/bio_tech.png' %}" alt="BioEdu">
-              BioEdu
-            </a>
+  <div class="page-wrapper d-flex flex-column min-vh-100">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg sticky-top" style="background-color: #A8E6A1;">
+      <div class="container-fluid">
+        <a class="navbar-brand fw-bold text-success" href="{% url 'index' %}">
+          <img src="{% static 'img/bio_tech.png' %}" alt="BioEdu" height="32">
+          {% trans "BioEdu" %}
+        </a>
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-              <span class="navbar-toggler-icon"></span>
-            </button>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
 
-            <div class="collapse navbar-collapse" id="navbarNav">
-              <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item"><a class="nav-link" href="{% url 'index' %}">Главная</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'section_list' %}">Теория</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'test_list' %}">Практика</a></li>
-                {% if user.is_authenticated %}
-                  <li class="nav-item"><a class="nav-link" href="{% url 'statistics' %}">Статистика</a></li>
-                {% endif %}
-              </ul>
+        <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link" href="{% url 'index' %}">{% trans "Главная" %}</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'section_list' %}">{% trans "Теория" %}</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'test_list' %}">{% trans "Практика" %}</a></li>
+            {% if user.is_authenticated %}
+              <li class="nav-item"><a class="nav-link" href="{% url 'statistics' %}">{% trans "Статистика" %}</a></li>
+            {% endif %}
+          </ul>
 
-              <ul class="navbar-nav align-items-center">
-                {% if user.is_authenticated %}
-                  <li class="nav-item me-2">
-                    <a href="{% url 'profile' %}" class="btn btn-outline-success btn-sm">
-                      <i class="bi bi-person-circle me-1"></i> Профиль
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a href="{% url 'logout' %}" class="btn btn-success btn-sm">
-                      <i class="bi bi-box-arrow-right me-1"></i> Выйти
-                    </a>
-                  </li>
-                {% else %}
-                  <li class="nav-item me-2">
-                    <a href="{% url 'login' %}" class="btn btn-success btn-sm">
-                      <i class="bi bi-box-arrow-in-right me-1"></i> Войти
-                    </a>
-                  </li>
-                {% endif %}
+          <ul class="navbar-nav align-items-center">
+            {% if user.is_authenticated %}
+              <li class="nav-item me-2">
+                <a href="{% url 'profile' %}" class="btn btn-outline-success btn-sm">
+                  <i class="bi bi-person-circle me-1"></i> {% trans "Профиль" %}
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{% url 'logout' %}" class="btn btn-success btn-sm">
+                  <i class="bi bi-box-arrow-right me-1"></i> {% trans "Выйти" %}
+                </a>
+              </li>
+            {% else %}
+              <li class="nav-item me-2">
+                <a href="{% url 'login' %}" class="btn btn-success btn-sm">
+                  <i class="bi bi-box-arrow-in-right me-1"></i> {% trans "Войти" %}
+                </a>
+              </li>
+            {% endif %}
 
-                <li class="nav-item ms-3">
-                  <form action="{% url 'set_language' %}" method="post">
-                    {% csrf_token %}
-                    <select name="language" onchange="this.form.submit()" class="form-select form-select-sm">
-                      <option value="ru" {% if LANGUAGE_CODE == 'ru' %}selected{% endif %}>RU</option>
-                      <option value="en" {% if LANGUAGE_CODE == 'en' %}selected{% endif %}>EN</option>
-                      <option value="kk" {% if LANGUAGE_CODE == 'kk' %}selected{% endif %}>KK</option>
-                    </select>
-                  </form>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </nav>
+            <li class="nav-item ms-3">
+              <form action="{% url 'set_language' %}" method="post">
+                {% csrf_token %}
+                <select name="language" onchange="this.form.submit()" class="form-select form-select-sm">
+                  <option value="ru" {% if LANGUAGE_CODE == 'ru' %}selected{% endif %}>RU</option>
+                  <option value="en" {% if LANGUAGE_CODE == 'en' %}selected{% endif %}>EN</option>
+                  <option value="kk" {% if LANGUAGE_CODE == 'kk' %}selected{% endif %}>KK</option>
+                </select>
+              </form>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
 
-        <!-- Main Content -->
-        <main class="flex-grow-1 p-4">
-          {% block content %}{% endblock %}
-        </main>
+    <!-- Main Content -->
+    <main class="flex-grow-1 p-4">
+      {% block content %}{% endblock %}
+    </main>
 
-        <footer class="footer mt-auto">
-          © {{ now|date:"Y" }} BioEdu.kz Все права защищены.
-        </footer>
-    </div>
+    <footer class="footer mt-auto text-center py-2 bg-light text-muted">
+      © {{ now|date:"Y" }} {% trans "BioEdu.kz Все права защищены." %}
+    </footer>
+  </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
